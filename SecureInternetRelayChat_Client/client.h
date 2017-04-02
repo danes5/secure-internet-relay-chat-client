@@ -20,31 +20,55 @@ public:
         RECEIVE_CHANNEL_DATA
 
     };
+    const QList<QString>* getActiveClients();
 
 signals:
-    void activeClientsUpdated(QList<QString> activeClients);
+    void activeClientsUpdated(const QList<QString>* activeClients);
 
 public slots:
     void updateActiveClients();
+    /**
+     * @brief sendCreateChannelRequest called from UI, attempts to start communication with other client
+     * @param name other client
+     */
     void sendCreateChannelRequest(QString name);
+
+    /**
+     * @brief receiveCreateChannelRequest receives request from other client and passes it to UI, then send answer back to the server
+     * @param name other client
+     */
     void receiveCreateChannelRequest(QString name);
+
+    /**
+     * @brief processReadyRead this slot is called every time there is some data on packet form server to read
+     * method is responsible for parsing the packet, and either setting up structures for incoming data or when already
+     * receiving the add data to the buffer until the buffer is full
+     */
     void processReadyRead();
 
-
-private:
+    /**
+     * @brief sendMessage attempts to send messsage to client with whom connection has already been established
+     * @param dest name of the other client
+     * @param text text to send
+     */
+    void sendMessage(QString dest, QString text);
 
     /**
      * @brief registerToServer attempts to register to client
      * may fail for example if there is no connection to the server
      * or if client with same username already exists
      */
-    void registerToServer();
+    void registerToServer(QString name);
+
+
+
+private:
 
     /**
      * @brief getActiveNames gets active clients from server
      * @return active clients
      */
-    QList<QString> getActiveNames();
+    QList<QString> getActiveNamesFromServer();
 
     /**
      * @brief acceptCreateChannelRequest accept request for communication from other client
@@ -76,6 +100,9 @@ private:
     QList<Channel*> activeChannels;
     ClientInfo clientInfo;
     NetworkTransmission currentTransmission;
+
+    const QString serverName;
+    const qint16 port;
 
 
 

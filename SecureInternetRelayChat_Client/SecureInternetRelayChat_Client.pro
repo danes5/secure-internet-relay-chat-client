@@ -30,13 +30,15 @@ SOURCES += main.cpp\
     channel.cpp \
     clientinfo.cpp \
     networktransmission.cpp \
-    clientslistview.cpp
+    clientslistmodel.cpp \
+    activecommunicationsmodel.cpp
 
 HEADERS  += mainwindow.h \
     client.h \
     channel.h \
     clientinfo.h \
     networktransmission.h \
-    clientslistview.h
+    clientslistmodel.h \
+    activecommunicationsmodel.h
 
 FORMS    += mainwindow.ui

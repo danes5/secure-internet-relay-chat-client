@@ -17,6 +17,7 @@ public:
         WAITINGFORRECEIVER,
         IDLE
     };
+    QString getOtherClientName();
 
 signals:
 
