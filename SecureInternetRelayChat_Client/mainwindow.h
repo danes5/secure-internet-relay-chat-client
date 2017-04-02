@@ -31,8 +31,11 @@ public slots:
     void addCommunication(QString name);
     void removeCommunication(QString name);
     void sendMessageButtonPressed();
-    void onStartCommunicationClicked(const QModelIndex &index);
+    void onStartCommunicationClicked();
     void onLoginButtonClicked();
+    void hideLoginUI();
+    void showLoginError(QString message);
+    void clientClicked(const QModelIndex &index);
 
 signals:
     void forwardSendMessage(QString communication, QString text);
@@ -45,6 +48,7 @@ private:
     Client* client;
     QMap<QString, QString> texts;
     QString activeCommunication;
+    QString selectedClient;
     ClientsListModel clientsListModel;
     ActiveCommunicationsModel communicationsListModel;
     QTextBrowser *textDisplayer;
@@ -59,7 +63,7 @@ private:
     QFrame *enterNameFrame;
     QPushButton *enterNameButton;
     QPushButton* quitButton;
-    void hideLoginUI();
+    QLabel *loginErrorLabel;
 
 
 

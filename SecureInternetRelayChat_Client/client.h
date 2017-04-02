@@ -6,6 +6,7 @@
 #include <QList>
 #include "channel.h"
 #include "clientinfo.h"
+#include "receivingactions.h"
 
 class Client : public QObject
 {
@@ -24,6 +25,8 @@ public:
 
 signals:
     void activeClientsUpdated(const QList<QString>* activeClients);
+    void onRegistrationSuccessful();
+    void onRegistrationFailed(QString message);
 
 public slots:
     void updateActiveClients();
@@ -91,10 +94,16 @@ private:
      * @brief receiveCreateChannelData receive data needed to establish communication with other user
      */
     void receiveCreateChannelData();
+    void registrationSuccessful();
+    void registrationFailed();
+    void readingComplete();
+    void verifyServerMessageID();
+    void processReceivingType();
 
-    bool isRegistered;
-    bool isReceiving;
-    serverReplyType currentReceivingType;
+    ReceivingActions receivingAction;
+    quint64 id;
+    QString currentReceivingType;
+    quint64 expectedDataSize;
     QSslSocket* serverConnection;
     QList<QString> activeClients;
     QList<Channel*> activeChannels;
@@ -103,6 +112,10 @@ private:
 
     const QString serverName;
     const qint16 port;
+    QByteArray buffer;
+    bool isRegistered;
+
+
 
 
 

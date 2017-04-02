@@ -12,6 +12,7 @@ MainWindow::MainWindow(Client *cl, QWidget *parent) :
     textEdit = ui->textEdit;
     activeClientsView = ui->activeClientsView;
     activeCommunicationsView = ui->activeCommunicationsView;
+    //communicationsListModel = communicationsListModel(activeCommunicationsView);
     sendMessageButton = ui->sendMessageButton;
     sendFileButton = ui->sendFileButton;
     startCommunicationButton = ui->startCommunicationsButton;
@@ -22,19 +23,30 @@ MainWindow::MainWindow(Client *cl, QWidget *parent) :
     enterNameLabel = ui->enterNameLabel;
     enterNameTextEdit = ui->enterNameEdit;
     quitButton = ui->quitButton;
+    loginErrorLabel = ui->loginErrorLabel;
+    loginErrorLabel->setVisible(false);
 
     activeClientsView->setModel(&clientsListModel);
     activeCommunicationsView->setModel(&communicationsListModel);
     // connects signal from client that list of active users has changed with slot in this class which updates it
     connect(client, SIGNAL(activeClientsUpdated(const QList<QString>*)), this, SLOT(updateActiveClients(const QList<QString>*)));
-    connect(ui->activeCommunicationsView,SIGNAL(clicked(const QModelIndex &)), this, SLOT(onCommunicationClicked(const QModelIndex &)));
+    connect(activeCommunicationsView,SIGNAL(clicked(const QModelIndex &)), this, SLOT(onCommunicationClicked(const QModelIndex &)));
+    connect(activeClientsView,SIGNAL(clicked(const QModelIndex &)), this, SLOT(clientClicked(const QModelIndex &)));
     connect(sendMessageButton, SIGNAL(pressed()), this, SLOT(sendMessageButtonPressed()));
     connect(this, SIGNAL(forwardSendMessage(QString, QString)), client, SLOT(sendMessage(QString,QString)));
     connect(this, SIGNAL(forwardStartCommunication(QString)), client, SLOT(sendCreateChannelRequest(QString)));
     connect(enterNameButton, SIGNAL(pressed()), this, SLOT(onLoginButtonClicked()));
+    connect(startCommunicationButton, SIGNAL(pressed()), this, SLOT(onStartCommunicationClicked()));
     connect(this, SIGNAL(forwardRegisterToServer(QString)), client, SLOT(registerToServer(QString)));
     QObject::connect(quitButton, SIGNAL(clicked()),
                      QApplication::instance(), SLOT(quit()));
+    connect(client, SIGNAL(onRegistrationSuccessful()), this, SLOT(hideLoginUI()));
+    connect(client, SIGNAL(onRegistrationFailed(QString)), this, SLOT(showLoginError(QString)));
+    texts.insert("nobody", "This is a message form someone");
+    texts.insert("123", "This is message from 123");
+    texts.insert("roman", "message from roman: this works!");
+    activeCommunicationsView->show();
+    activeClientsView->show();
 
 
 }
@@ -75,12 +87,10 @@ void MainWindow::sendMessageButtonPressed()
     emit forwardSendMessage(activeCommunication, text);
 }
 
-void MainWindow::onStartCommunicationClicked(const QModelIndex &index)
+void MainWindow::onStartCommunicationClicked()
 {
-    if (index.isValid()) {
-        QString clientName = index.data().toString();
-        emit forwardStartCommunication(clientName);
-    }
+        qDebug() << "start communication emmmited";
+        emit forwardStartCommunication(selectedClient);
 }
 
 void MainWindow::onLoginButtonClicked()
@@ -89,8 +99,23 @@ void MainWindow::onLoginButtonClicked()
     emit forwardRegisterToServer(name);
 }
 
+void MainWindow::showLoginError(QString message)
+{
+    loginErrorLabel->setText(message);
+    loginErrorLabel->setVisible(true);
+}
+
+void MainWindow::clientClicked(const QModelIndex &index)
+{
+    if (index.isValid()) {
+        selectedClient = index.data().toString();
+        activeClientsView->setCurrentIndex(index);
+    }
+}
+
 void MainWindow::hideLoginUI()
 {
+    loginErrorLabel->setVisible(false);
     enterNameLabel->setVisible(false);
     enterNameButton->setVisible(false);
     enterNameFrame->setVisible(false);

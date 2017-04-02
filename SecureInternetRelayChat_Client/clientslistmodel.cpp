@@ -17,5 +17,7 @@ void ClientsListModel::setSource(const QList<QString> *src)
 
 QVariant ClientsListModel::data(const QModelIndex &index, int role) const
 {
-    return QVariant(_data->at(index.column()));
+    if ( role != Qt::DisplayRole )
+        return QVariant();
+    return QVariant(_data->at(index.row()));
 }

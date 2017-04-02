@@ -1,0 +1,14 @@
+#ifndef RECEIVINGACTIONS_H
+#define RECEIVINGACTIONS_H
+
+enum ReceivingActions{
+    NOTHING,
+    RECEIVED_ID,
+    RECEIVED_TYPE,
+    RECEIVED_LENGTH
+
+
+};
+
+
+#endif // RECEIVINGACTIONS_H

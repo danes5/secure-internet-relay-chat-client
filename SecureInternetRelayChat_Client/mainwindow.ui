@@ -194,8 +194,8 @@ p, li { white-space: pre-wrap; }
    <widget class="QFrame" name="enterNameFrame">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>250</y>
+      <x>40</x>
+      <y>380</y>
       <width>891</width>
       <height>211</height>
      </rect>
@@ -251,6 +251,28 @@ background-color: bluergb(0, 0, 200);
      </property>
      <property name="text">
       <string>Continue</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="loginErrorLabel">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>70</y>
+       <width>811</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">.QLabel
+{
+background-color: red
+}</string>
+     </property>
+     <property name="text">
+      <string>asdasdasdasd</string>
      </property>
     </widget>
    </widget>

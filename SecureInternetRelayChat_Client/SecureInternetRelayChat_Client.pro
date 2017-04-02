@@ -39,6 +39,7 @@ HEADERS  += mainwindow.h \
     clientinfo.h \
     networktransmission.h \
     clientslistmodel.h \
-    activecommunicationsmodel.h
+    activecommunicationsmodel.h \
+    receivingactions.h
 
 FORMS    += mainwindow.ui
