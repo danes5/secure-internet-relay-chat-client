@@ -7,6 +7,7 @@
 #include "channel.h"
 #include "clientinfo.h"
 #include "receivingactions.h"
+#include <QMessageBox>
 
 class Client : public QObject
 {
@@ -62,6 +63,12 @@ public slots:
      * or if client with same username already exists
      */
     void registerToServer(QString name);
+
+
+    void socketStateChanged(QAbstractSocket::SocketState state);
+    void socketEncrypted();
+    void socketError(QAbstractSocket::SocketError error);
+    void sslErrors(QList<QSslError> errors);
 
 
 

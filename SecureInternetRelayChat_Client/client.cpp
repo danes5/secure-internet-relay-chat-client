@@ -76,8 +76,43 @@ void Client::sendMessage(QString dest, QString text)
 void Client::registerToServer(QString name)
 {
     serverConnection = new QSslSocket(this);
+
+    connect(serverConnection, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+                    this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
+            connect(serverConnection, SIGNAL(encrypted()),
+                    this, SLOT(socketEncrypted()));
+            connect(serverConnection, SIGNAL(error(QAbstractSocket::SocketError)),
+                    this, SLOT(socketError(QAbstractSocket::SocketError)));
+            connect(serverConnection, SIGNAL(sslErrors(QList<QSslError>)),
+                    this, SLOT(sslErrors(QList<QSslError>)));
+            connect(serverConnection, SIGNAL(readyRead()),
+                    this, SLOT(processReadyRead()));
+
     serverConnection->connectToHostEncrypted(serverName, port);
-    currentReceivingType = REGISTER_REPLY;
+    //currentReceivingType = REGISTER_REPLY;
+}
+
+void Client::socketStateChanged(QAbstractSocket::SocketState state)
+{
+
+}
+
+void Client::socketEncrypted()
+{
+    // now we actually perform sending registration request
+}
+
+void Client::socketError(QAbstractSocket::SocketError error)
+{
+    qDebug() << "socket error: " << error;
+}
+
+void Client::sslErrors(QList<QSslError> errors)
+{
+    foreach (QSslError error, errors) {
+        qDebug() << error.errorString();
+    }
+
 }
 
 QList<QString> Client::getActiveNamesFromServer()
@@ -145,9 +180,8 @@ void Client::processReceivingType()
         }else{
             // now receivingAction must be Received Length and whole message is read by now
             receivingAction = NOTHING;
-            QJsonObject receivedCLientsList;
-            //receivedCLientsList = buffer.to;
-            // now we have to parse string into list of clients
+            ClientInfo clientInfo;
+            // now we need to extract client info
         }
     return;
     }
