@@ -12,10 +12,78 @@ const QList<QString> *Client::getActiveClients()
 
 }
 
+QByteArray Client::encryptRegistrationRequest(QString clientName)
+{
+    QJsonObject jsonObject;
+    jsonObject.insert("type", "reg_req");
+    QJsonDocument jsonDoc(jsonObject);
+    QByteArray array(jsonDoc.toBinaryData());
+    return gcm.encryptAndTag(array);
+
+}
+
+QByteArray Client::encryptCreateChannelRequest(QString clientName)
+{
+    QJsonObject jsonObject;
+    jsonObject.insert("type", "req_cre");
+    jsonObject.insert("client", clientName);
+    QJsonDocument jsonDoc(jsonObject);
+    QByteArray array(jsonDoc.toBinaryData());
+    return gcm.encryptAndTag(array);
+}
+
+QByteArray Client::encryptCreateChannelReply(bool reply, QString clientName)
+{
+    QJsonObject jsonObject;
+    jsonObject.insert("type", "req_cre");
+    jsonObject.insert("client", clientName);
+    jsonObject.insert("result", reply);
+    QJsonDocument jsonDoc(jsonObject);
+    QByteArray array(jsonDoc.toBinaryData());
+    return gcm.encryptAndTag(array);
+}
+
+QByteArray Client::encryptGetActiveClientsRequest()
+{
+    QJsonObject jsonObject;
+    jsonObject.insert("type", "get_cli");
+    QJsonDocument jsonDoc(jsonObject);
+    QByteArray array(jsonDoc.toBinaryData());
+    return gcm.encryptAndTag(array);
+}
+
+QByteArray Client::encryptClientInfo()
+{
+    QJsonObject jsonObject;
+    jsonObject.insert("type", "cli_info");
+    clientInfo.write(jsonObject);
+    QJsonDocument jsonDoc(jsonObject);
+    QByteArray array(jsonDoc.toBinaryData());
+    return gcm.encryptAndTag(array);
+}
+
 void Client::sendCreateChannelRequest(QString name)
 {
     qDebug() << "sending create channel request to the server\n";
 }
+
+void Client::initialize(){
+    gcm.initialize();
+}
+
+unsigned char* Client::generateGcmKey()
+{
+    return gcm.generateGcmKey();
+}
+
+void Client::setkey(unsigned char * newKey)
+{
+    gcm.setKey(newKey);
+
+}
+
+
+
 
 void Client::receiveCreateChannelRequest(QString name)
 {
@@ -30,7 +98,7 @@ void Client::processReadyRead()
     //  3. Length of the Body of message
     //  4. Body of the message of length Length
 
-    buffer = serverConnection->readAll();
+    buffer.append( serverConnection->readAll());
     switch (receivingAction) {
     case NOTHING:
         id = buffer.toULongLong();
@@ -191,6 +259,7 @@ void Client::processReceivingType()
         registrationFailed();
     }
 }
+
 
 void Client::updateActiveClients(){
 

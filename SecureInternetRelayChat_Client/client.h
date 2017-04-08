@@ -8,6 +8,7 @@
 #include "clientinfo.h"
 #include "receivingactions.h"
 #include <QMessageBox>
+#include "gcmutils.h"
 
 class Client : public QObject
 {
@@ -20,9 +21,19 @@ public:
         RECEIVE_CREATE_CHANNEL_REPLY,
         RECEIVE_CREATE_CHANNEL_REQUEST,
         RECEIVE_CHANNEL_DATA
-
     };
     const QList<QString>* getActiveClients();
+    QByteArray encryptRegistrationRequest(QString clientName);
+    QByteArray encryptCreateChannelRequest(QString clientName);
+    QByteArray encryptCreateChannelReply(bool reply, QString clientName);
+    QByteArray encryptGetActiveClientsRequest();
+    QByteArray encryptClientInfo();
+
+    void initialize();
+
+    unsigned char * generateGcmKey();
+    void setkey(unsigned char * newKey);
+
 
 signals:
     void activeClientsUpdated(const QList<QString>* activeClients);
@@ -106,7 +117,6 @@ private:
     void readingComplete();
     void verifyServerMessageID();
     void processReceivingType();
-
     ReceivingActions receivingAction;
     quint64 id;
     QString currentReceivingType;
@@ -121,6 +131,8 @@ private:
     const qint16 port;
     QByteArray buffer;
     bool isRegistered;
+
+    GcmUtils gcm;
 
 
 

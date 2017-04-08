@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += network
+CONFIG += c++14
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,7 +32,26 @@ SOURCES += main.cpp\
     clientinfo.cpp \
     networktransmission.cpp \
     clientslistmodel.cpp \
-    activecommunicationsmodel.cpp
+    activecommunicationsmodel.cpp \
+    testing.cpp \
+    securityfunctions.cpp \
+    libs/aes.c \
+    libs/aesni.c \
+    libs/gcm.c \
+    libs/sha512.c \
+    libs/cipher.c \
+    libs/ccm.c \
+    libs/cmac.c \
+    libs/cipher_wrap.c \
+    libs/arc4.c \
+    libs/camellia.c \
+    libs/blowfish.c \
+    libs/des.c \
+    gcmutils.cpp
+
+
+
+
 
 HEADERS  += mainwindow.h \
     client.h \
@@ -40,6 +60,30 @@ HEADERS  += mainwindow.h \
     networktransmission.h \
     clientslistmodel.h \
     activecommunicationsmodel.h \
-    receivingactions.h
+    receivingactions.h \
+    securityfunctions.h \
+    libs/cipher_internal.h \
+    libs/aes.h \
+    libs/aesni.h \
+    libs/gcm.h \
+    libs/sha512.h \
+    libs/check_config.h \
+    libs/cipher.h \
+    libs/config.h \
+    libs/padlock.h \
+    libs/platform.h \
+    libs/platform_time.h \
+    libs/target_config.h \
+    catch.hpp \
+    libs/ccm.h \
+    libs/cmac.h \
+    libs/arc4.h \
+    libs/camellia.h \
+    libs/blowfish.h \
+    libs/des.h \
+    gcmutils.h
+
+
+
 
 FORMS    += mainwindow.ui

@@ -1,11 +1,12 @@
 #include <QCoreApplication>
-#include "Server.hpp"
+//#include "Server.hpp"
 #include <QDebug>
 
 #include <QJsonDocument>
 #include <QJsonValue>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QIODevice>
 
 
 #include "securityfunctions.h"
@@ -22,8 +23,9 @@
 
 
 #include "clientslistmodel.h"
+#include "channel.h"
 
-Client client;
+/*Client client;
 Client client2;
 QList<QString> *list = client.getActiveClients();
 
@@ -73,7 +75,8 @@ TEST_CASE("test ClientInfo") {
     REQUIRE(json["names"] == "Munchkin");
 }
 
-
+*/
+// --------------------------------SECTION BASIC MBEDTLS TESTS ----------------------------------------------------------------
 
 TEST_CASE("test hash", "[sha-512]") {
     std::ofstream source("./files/in", std::ios::out);
@@ -171,8 +174,36 @@ TEST_CASE("test encryption and decryption","[aes-128]"){
     std::string originalInput;
 
     REQUIRE(originalInput == decryptedText);
-
-
-
 }
 
+
+// ------------------------------------------ SECTION CLIENT TESTS -----------------------------------------------------------
+
+TEST_CASE("client encrypt message"){
+
+    unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    Channel channel;
+    channel.setkey(key);
+    QString text("This us super secret message, needs to be encrypted");
+    QByteArray encrypted = channel.encryptMessage(text);
+}
+
+TEST_CASE("encrypt and decrypt message"){
+    Channel channel;
+    channel.initialize();
+    unsigned char* key = channel.generateGcmKey();
+    channel.setkey(key);
+    QString text("This us super secret message, needs to be encrypted");
+    QByteArray encrypted = channel.encryptMessage(text);
+    quint64 length;
+    QDataStream stream(encrypted);
+    stream >> length;
+
+    QJsonDocument decryptedMessage = channel.decrypt(encrypted);
+
+
+
+    QJsonObject json = decryptedMessage.object();
+    qDebug() << "------------textasdasdasdkjnaksjdn" << json;
+
+}
