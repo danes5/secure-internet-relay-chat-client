@@ -183,6 +183,7 @@ TEST_CASE("client encrypt message"){
 
     unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
     Channel channel;
+    channel.initialize();
     channel.setkey(key);
     QString text("This us super secret message, needs to be encrypted");
     QByteArray encrypted = channel.encryptMessage(text);
@@ -191,19 +192,21 @@ TEST_CASE("client encrypt message"){
 TEST_CASE("encrypt and decrypt message"){
     Channel channel;
     channel.initialize();
-    unsigned char* key = channel.generateGcmKey();
+    unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
     channel.setkey(key);
     QString text("This us super secret message, needs to be encrypted");
     QByteArray encrypted = channel.encryptMessage(text);
-    quint64 length;
+    QByteArray encryptedFull = encrypted.mid(sizeof(quint64), -1);
     QDataStream stream(encrypted);
+    quint64 length;
     stream >> length;
+    qDebug() << "length after decrypted" << length;
 
-    QJsonDocument decryptedMessage = channel.decrypt(encrypted);
+    QJsonDocument decryptedMessage = channel.decrypt(encryptedFull);
 
 
 
     QJsonObject json = decryptedMessage.object();
-    qDebug() << "------------textasdasdasdkjnaksjdn" << json;
+    //qDebug() << "------------textasdasdasdkjnaksjdn" << json;
 
 }

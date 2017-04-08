@@ -184,7 +184,9 @@ int encryptDataGCM(const unsigned char *input, size_t input_len, mbedtls_gcm_con
     int result = mbedtls_gcm_crypt_and_tag(context, MBEDTLS_GCM_ENCRYPT, input_len,
                  local_iv, iv_len, unprotectedData, unprotectedLength, input, output,
                  tag_len, tag);
-    qDebug() << "encryption: " << result;
+    qDebug() << "enc tag:" << tag;
+    if (result !=0)
+        qDebug() << "encryption failed : " << result;
     return result;
 
 
@@ -198,6 +200,7 @@ int decryptDataGCM(const unsigned char *input, size_t input_len, mbedtls_gcm_con
     unsigned char local_iv[iv_len];
     memcpy(local_iv, iv, iv_len);
 
+    qDebug() << "dec tag:" << tag;
     int result = mbedtls_gcm_auth_decrypt(context, input_len,
                  local_iv, iv_len, unprotectedData, unprotectedLength, tag, tag_len, input, output);
     return result;
