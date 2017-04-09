@@ -7,21 +7,15 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QIODevice>
+#include <QByteArray>
 
-
-#include "securityfunctions.h"
-#include "ios"
-
-#include "channel.h"
-#include "client.h"
-#include "clientslistmodel.h"
 
 // Tell CATCH to define its main function here
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-
-
+#include "securityfunctions.h"
+#include "client.h"
 #include "clientslistmodel.h"
 #include "channel.h"
 
@@ -174,6 +168,38 @@ TEST_CASE("test encryption and decryption","[aes-128]"){
     std::string originalInput;
 
     REQUIRE(originalInput == decryptedText);
+}
+
+
+TEST_CASE("GCM"){
+
+    const size_t tag_len = 16;
+    unsigned char tag[tag_len];
+
+    unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+
+    static constexpr size_t iv_len = 16;
+    unsigned char iv[iv_len] = { 14, 31, 60, 126, 81, 12, 36, 102, 57, 9, 42, 51, 111, 4, 3, 25 };
+
+    QByteArray *data = new QByteArray("This us super secret message, needs to be encrypted");
+    quint64 length = data->length() + tag_len;
+
+    unsigned char output[data->length()];
+
+
+    mbedtls_gcm_context context;
+    mbedtls_gcm_init( &context );
+    mbedtls_gcm_setkey( &context, MBEDTLS_CIPHER_ID_AES, key, 256 );
+
+    encryptDataGCM((const unsigned char *)data->constData(), length - tag_len, &context, nullptr, 0, iv, iv_len, tag_len, tag, output);
+
+    QByteArray encrypted;
+    QDataStream stream(&encrypted, QIODevice::ReadWrite);
+
+    stream << length << tag << (const char *)output;
+
+    qDebug() << "output" << encrypted;
+
 }
 
 
