@@ -7,7 +7,6 @@
 #include "channel.h"
 #include "clientinfo.h"
 #include "receivingactions.h"
-#include <QMessageBox>
 #include "gcmutils.h"
 
 class Client : public QObject

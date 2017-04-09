@@ -236,3 +236,4 @@ TEST_CASE("encrypt and decrypt message"){
     //qDebug() << "------------textasdasdasdkjnaksjdn" << json;
 
 }
+

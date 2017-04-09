@@ -19,7 +19,16 @@ QByteArray GcmUtils::encryptAndTag(QByteArray data)
     QDataStream stream(&encrypted, QIODevice::ReadWrite);
     //qDebug() << output;
 
-    stream << length << tag << (const char *)output;
+    stream << length;
+    for (int i =0; i < tag_len; ++i){
+        stream << tag[i];
+    }
+
+    for (int i =0; i < data.length(); ++i){
+        stream << output[i];
+    }
+
+    //stream << (const char *)output;
 
     qDebug() << "output" << encrypted;
 
@@ -31,10 +40,10 @@ QByteArray GcmUtils::encryptAndTag(QByteArray data)
 }
 
 QJsonDocument GcmUtils::decryptAndAuthorizeFull(QByteArray array){
-    char * tagArray;
+    const char * tagArray = array.constData();
     //QByteArray tagArray = array.mid(0, tag_len);
-    QDataStream stream(array);
-    stream >> tagArray;
+    //QDataStream stream(array);
+    //stream >> tagArray;
     qDebug() << "tag array decryption" << tagArray;
     QByteArray body = array.mid(tag_len, -1);
     return decryptAndAuthorizeBody(body, tagArray);
