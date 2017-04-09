@@ -12,26 +12,26 @@ QByteArray GcmUtils::encryptAndTag(QByteArray data)
     unsigned char tag[16];
     quint64 length = data.length() + tag_len;
 
-    unsigned char output[data.length()];
+    unsigned char output[length + sizeof(quint64)];
     encryptDataGCM((const unsigned char *)data.constData(), length - tag_len, &context,
-                  nullptr, 0, iv, iv_len, tag_len, tag, output);
+                  nullptr, 0, iv, iv_len, tag_len, tag, output + tag_len + sizeof(quint64));
     QByteArray encrypted;
     QDataStream stream(&encrypted, QIODevice::ReadWrite);
     //qDebug() << output;
 
-    stream << length;
-    for (int i =0; i < tag_len; ++i){
-        stream << tag[i];
-    }
+//    stream << length;
+    memcpy(output, QString::number(length).constData(), sizeof(quint64));
+    memcpy(output + sizeof(quint64), tag, tag_len);
 
-    for (int i =0; i < data.length(); ++i){
-        stream << output[i];
-    }
+//    for (int i =0; i < tag_len; ++i){
+//        stream << tag[i];
+//    }
 
+//    for (int i =0; i < data.length(); ++i){
+//        stream << output[i];
+//    }
+    encrypted.fromRawData((const char *)output, length + sizeof(quint64));
     //stream << (const char *)output;
-
-    qDebug() << "output" << encrypted;
-
 
     //data.prepend((const char *)tag, tag_len);
     //data.prepend(QString::number(length).toUtf8());
