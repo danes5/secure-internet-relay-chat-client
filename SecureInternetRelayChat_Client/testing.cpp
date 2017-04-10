@@ -19,57 +19,6 @@
 #include "clientslistmodel.h"
 #include "channel.h"
 
-/*Client client;
-Client client2;
-QList<QString> *list = client.getActiveClients();
-
-TEST_CASE("test Client") {
-    REQUIRE(*list[0].size() == 2);
-
-    REQUIRE(*list[0].toString() == "Johny");
-    REQUIRE(*list[1].toString() == "Billy");
-
-    REQUIRE(*list[0].toString() == "Johny");
-
-    client.registerToServer("Munchkin");
-    REQUIRE(client.registrationInfo() == true);
-
-    //client2.registerToServer("Munchkin");
-    //REQUIRE(client.registrationInfo() == false);
-
-    //client2.registerToServer("Munchkin2");
-    //REQUIRE(client.registrationInfo() == true);
-}
-
-
-TEST_CASE("test SendMessage") {
-    REQUIRE(client.sendMessage("Johny", "wdada") == 0);
-    REQUIRE(client.sendMessage("Billy", "wdada") == 0);
-
-    REQUIRE(client.sendMessage("Error", "wdada") == 0);
-}
-
-
-TEST_CASE("test Channel") {
-    Channel chanal();
-
-    REQUIRE(chanal.getOtherClientName() == "Johny");
-}
-
-
-ClientInfo info;
-info.clientName = "Munchkin";
-info.clientAddress =  = QHostAddress(192.168.0.2);
-
-
-TEST_CASE("test ClientInfo") {
-    QJsonObject json;
-    info.write(&json);
-
-    REQUIRE(json["names"] == "Munchkin");
-}
-
-*/
 // --------------------------------SECTION BASIC MBEDTLS TESTS ----------------------------------------------------------------
 
 TEST_CASE("test hash", "[sha-512]") {
@@ -170,13 +119,13 @@ TEST_CASE("test encryption and decryption","[aes-128]"){
     REQUIRE(originalInput == decryptedText);
 }
 
-
-TEST_CASE("GCM"){
+TEST_CASE("GCM encrypt and decrypt"){
 
     const size_t tag_len = 16;
     unsigned char tag[tag_len];
 
     unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
 
     static constexpr size_t iv_len = 16;
     unsigned char iv[iv_len] = { 14, 31, 60, 126, 81, 12, 36, 102, 57, 9, 42, 51, 111, 4, 3, 25 };
@@ -184,28 +133,172 @@ TEST_CASE("GCM"){
     QByteArray *data = new QByteArray("This us super secret message, needs to be encrypted");
     quint64 length = data->length() + tag_len;
 
-    unsigned char output[data->length()];
 
+    //unsigned char *output;
+    unsigned char *output = new unsigned char[data->length()]();
 
+//ENCRYPT
     mbedtls_gcm_context context;
     mbedtls_gcm_init( &context );
     mbedtls_gcm_setkey( &context, MBEDTLS_CIPHER_ID_AES, key, 256 );
 
-    encryptDataGCM((const unsigned char *)data->constData(), length - tag_len, &context, nullptr, 0, iv, iv_len, tag_len, tag, output);
+    int result = encryptDataGCM((const unsigned char *)data->constData(), length - tag_len, &context, nullptr, 0, iv, iv_len, tag_len, tag, output);
 
-    QByteArray encrypted;
-    QDataStream stream(&encrypted, QIODevice::ReadWrite);
+    REQUIRE(result == 0);
 
-    stream << length << tag << (const char *)output;
+    REQUIRE(strcmp((char *)output, "\0xf9\0x62\0xb3\0xca\0x17\0x3f\0x4c\0x64\0x09\0x3b\0xd3\0x69\0xd3\0xc7\0x25\0xd3\0x01\0x7f\0xc9\0x58\0x5c\0xe1\0xac\0x4a\0x3e\0x30\0xc6\0x96\0x4a\0xfa\0x65\0x97\0x58\0x86\0x1d\0x38\0xf0\0x16\0xa7\0xf4\0x5e\0x0e\0xc6\0x71\0x3f\0xbe\0x02\0x7f\0xae\0x11\0xa0\0xff\0xff\0x7f") == 0);
 
-    qDebug() << "output" << encrypted;
+    REQUIRE(strcmp((char *)tag, "\0x90\0x6b\0xb3\0x4a\0x10\0x62\0x21\0x73\0xf6\0xe0\0x36\0xd6\0x96\0x12\0x8a\0xba\0x22") == 0);
+
+
+//DECRYPT with correct key
+    unsigned char *outputEncrypt = new unsigned char[data->length()]();
+    mbedtls_gcm_context context2;
+    mbedtls_gcm_init( &context2 );
+    mbedtls_gcm_setkey( &context2, MBEDTLS_CIPHER_ID_AES, key, 256 );
+
+    result = decryptDataGCM(output, length - tag_len, &context2, nullptr, 0, iv, iv_len, tag_len, tag, outputEncrypt);
+
+    REQUIRE(result == 0);
+
+    REQUIRE(strcmp((char *)output, "This us super secret message, needs to be encrypted") == 0);
+
+
+//DECRYPT with bad key
+    mbedtls_gcm_context context3;
+    mbedtls_gcm_init( &context3 );
+    mbedtls_gcm_setkey( &context3, MBEDTLS_CIPHER_ID_AES, bKey, 256 );
+
+    result = decryptDataGCM(output, length - tag_len, &context3, nullptr, 0, iv, iv_len, tag_len, tag, outputEncrypt);
+
+    REQUIRE(result == 0);
+
+    REQUIRE(strcmp((char *)output, "This us super secret message, needs to be encrypted") != 0);
+
+
+}
+
+// ------------------------------------------ SECTION CLIENT TESTS -----------------------------------------------------------
+
+TEST_CASE("client RegistrationRequest"){
+    QByteArray refMessage("�h��6J?DRN���V�F �,g��9YQՊ��:�}�&��J.�P�{ ����");
+    unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    Client client;
+    client.initialize();
+    client.setkey(key);
+
+    QByteArray message = client.encryptRegistrationRequest("Arkham");
+    REQUIRE(message == refMessage);
+
+//different name
+    QByteArray message2 = client.encryptRegistrationRequest("Arkham2");
+    REQUIRE(message != message2);
+
+
+//different key
+    unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    client.setkey(bKey);
+    message2 = client.encryptRegistrationRequest("Arkham");
+    REQUIRE(message != message2);
 
 }
 
 
-// ------------------------------------------ SECTION CLIENT TESTS -----------------------------------------------------------
+TEST_CASE("client CreateChannelRequest"){
+    QByteArray refMessage("�h��6�9YQJ?D:N���V�Z �,g��9YQՊ��:�}�&��^.�G�{�t��KeG");
+    unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    Client client;
+    client.initialize();
+    client.setkey(key);
 
-TEST_CASE("client encrypt message"){
+    QByteArray message = client.encryptCreateChannelRequest("Arkham");
+    REQUIRE(message == refMessage);
+
+//different name
+    QByteArray message2 = client.encryptCreateChannelRequest("Arkham2");
+    REQUIRE(message != message2);
+
+
+//different key
+    unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    client.setkey(bKey);
+    message2 = client.encryptCreateChannelRequest("Arkham");
+    REQUIRE(message != message2);
+
+}
+
+
+TEST_CASE("client GetActiveClientsRequest"){
+    QByteArray refMessage("\0xdc\0x68\0xb0\0xca\0x36\0x4a\0x3f\0x44\0x52\0x4e\0xa3\0x0c\0xa2\0xe7\0x56\0xb6\0x46\0x0d\0xac\0x2c\0x67\0x8f\0xc9\0x39\0x59\0x51\0xd5\0x8a\0x16\0xbf\0x0b\0xf2\0x3a\0xe2\0x09\0x7d\0xf0\0x26\0xe4\0xfa\0x52\0x2e\0xa3\0x1f\0x50\0xcc\0x7b\0x0f\0x70\0xd3\0xff\0xff\0xff\0x7f");
+    unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    Client client;
+    client.initialize();
+    client.setkey(key);
+
+    QByteArray message = client.encryptGetActiveClientsRequest();
+    REQUIRE(message == refMessage);
+
+//different key
+    unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    client.setkey(bKey);
+    QByteArray message2 = client.encryptGetActiveClientsRequest();
+    REQUIRE(message != message2);
+
+}
+
+TEST_CASE("client encryptClientInfo"){
+    QByteArray refMessage("\0xdc\0x68\0xb0\0xca\0x36\0x4a\0x3f\0x44\0x52\0x4e\0xa3\0x0c\0xa2\0xe7\0x56\0xb6\0x46\0x0d\0xac\0x2c\0x67\0x8f\0xc9\0x39\0x59\0x51\0xd5\0x8a\0x16\0xbf\0x0b\0xf2\0x35\0xe2\0x0d\0x74\0xed\0x26\0xee\0xf8\0x5d\0x41\0xa3\0x1f\0x50\0xcc\0x7b\0x0f\0x70\0xd3\0xff\0xff\0xff\0x7f");
+    unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    Client client;
+    client.initialize();
+    client.setkey(key);
+
+    QByteArray message = client.encryptClientInfo();
+    REQUIRE(message == refMessage);
+
+//different key
+    unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    client.setkey(bKey);
+    QByteArray message2 = client.encryptClientInfo();
+    REQUIRE(message != message2);
+
+}
+
+TEST_CASE("client CreateChannelReply"){
+    QByteArray refMessage("\0xdc\0x68\0xb0\0xca\0x36\0x4a\0x3f\0x44\0x52\0x4e\0xa3\0x0c\0xa2\0xe7\0x56\0xb6\0x26\0x0d\0xac\0x2c\0x67\0x8f\0xc9\0x39\0x59\0x51\0xd5\0x8a\0x16\0xbf\0x0b\0xf2\0x3a\0xe2\0x1c\0x7d\0xf5\0x26\0xe4\0xe4\0x5e\0x2e\0xa3\0x1f\0x47\0xca\0x7b\0x0f\0xdc\0x74\0xa7\0xbb\0x4b\0x65\0x47");
+    unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    Client client;
+    client.initialize();
+    client.setkey(key);
+
+    QByteArray message = client.encryptCreateChannelReply(true, "Arkham");
+    REQUIRE(message == refMessage);
+
+//different parameters
+    QByteArray message2 = client.encryptCreateChannelReply(true, "Arkham2");
+    REQUIRE(message != message2);
+
+    message2 = client.encryptCreateChannelReply(false, "Arkham");
+    REQUIRE(message != message2);
+
+    message2 = client.encryptCreateChannelReply(false, "Arkham2");
+    REQUIRE(message != message2);
+
+
+//different key
+    unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    client.setkey(bKey);
+    message2 = client.encryptCreateChannelReply(true, "Arkham");
+    REQUIRE(message != message2);
+
+}
+
+
+
+
+// ------------------------------------------ SECTION CHANNEL TESTS -----------------------------------------------------------
+
+TEST_CASE("encrypt message"){
 
     unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
     Channel channel;
@@ -213,6 +306,19 @@ TEST_CASE("client encrypt message"){
     channel.setkey(key);
     QString text("This us super secret message, needs to be encrypted");
     QByteArray encrypted = channel.encryptMessage(text);
+
+    QByteArray refEncrypted("�h��6J?D\016N�\014��V�\016\r�,g��9YQՊ\026�\013�1�\035}�\035��^]�~;�{\017Ar��&");
+
+    REQUIRE(encrypted == refEncrypted);
+
+
+    //different key
+    unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    channel.setkey(bKey);
+    QByteArray encrypted2 = channel.encryptMessage(text);
+
+    REQUIRE(encrypted != encrypted2);
+
 }
 
 TEST_CASE("encrypt and decrypt message"){
@@ -220,20 +326,30 @@ TEST_CASE("encrypt and decrypt message"){
     channel.initialize();
     unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
     channel.setkey(key);
+
     QString text("This us super secret message, needs to be encrypted");
     QByteArray encrypted = channel.encryptMessage(text);
     QByteArray encryptedFull = encrypted.mid(sizeof(quint64), -1);
     QDataStream stream(encrypted);
     quint64 length;
     stream >> length;
-    qDebug() << "length after decrypted" << length;
 
+    QJsonObject jsonObject;
+    jsonObject.insert("type", "send_message");
+    jsonObject.insert("data", "This us super secret message, needs to be encrypted");
+    QJsonDocument refJsonDoc(jsonObject);
+
+    //Decrypt with correct key
     QJsonDocument decryptedMessage = channel.decrypt(encryptedFull);
+    REQUIRE(decryptedMessage == refJsonDoc);
 
-
-
-    QJsonObject json = decryptedMessage.object();
-    //qDebug() << "------------textasdasdasdkjnaksjdn" << json;
+    //Decrypt with bad key
+    unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    channel.setkey(key);
+    decryptedMessage = channel.decrypt(encryptedFull);
+    REQUIRE(decryptedMessage != refJsonDoc);
 
 }
+
+
 
