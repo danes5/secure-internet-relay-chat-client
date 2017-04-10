@@ -186,20 +186,24 @@ TEST_CASE("client RegistrationRequest"){
     Client client;
     client.initialize();
     client.setkey(key);
+    bool result;
 
     QByteArray message = client.encryptRegistrationRequest("Arkham");
-    REQUIRE(message == refMessage);
+    result = (message == refMessage);
+    REQUIRE(result == true);
 
 //different name
     QByteArray message2 = client.encryptRegistrationRequest("Arkham2");
-    REQUIRE(message != message2);
+    result = (message != message2);
+    REQUIRE(result == true);
 
 
 //different key
     unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
     client.setkey(bKey);
     message2 = client.encryptRegistrationRequest("Arkham");
-    REQUIRE(message != message2);
+    result = (message != message2);
+    REQUIRE(result == true);
 
 }
 
@@ -210,20 +214,24 @@ TEST_CASE("client CreateChannelRequest"){
     Client client;
     client.initialize();
     client.setkey(key);
+    bool result;
 
     QByteArray message = client.encryptCreateChannelRequest("Arkham");
-    REQUIRE(message == refMessage);
+    result = (message == refMessage);
+    REQUIRE(result == true);
 
 //different name
     QByteArray message2 = client.encryptCreateChannelRequest("Arkham2");
-    REQUIRE(message != message2);
+    result = (message != message2);
+    REQUIRE(result == true);
 
 
 //different key
     unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
     client.setkey(bKey);
     message2 = client.encryptCreateChannelRequest("Arkham");
-    REQUIRE(message != message2);
+    result = (message != message2);
+    REQUIRE(result == true);
 
 }
 
@@ -234,15 +242,18 @@ TEST_CASE("client GetActiveClientsRequest"){
     Client client;
     client.initialize();
     client.setkey(key);
+    bool result;
 
     QByteArray message = client.encryptGetActiveClientsRequest();
-    REQUIRE(message == refMessage);
+    result = (message == refMessage);
+    REQUIRE(result == true);
 
 //different key
     unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
     client.setkey(bKey);
     QByteArray message2 = client.encryptGetActiveClientsRequest();
-    REQUIRE(message != message2);
+    result = (message != message2);
+    REQUIRE(result == true);
 
 }
 
@@ -252,15 +263,18 @@ TEST_CASE("client encryptClientInfo"){
     Client client;
     client.initialize();
     client.setkey(key);
+    bool result;
 
     QByteArray message = client.encryptClientInfo();
-    REQUIRE(message == refMessage);
+    result = (message == refMessage);
+    REQUIRE(result == true);
 
 //different key
     unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
     client.setkey(bKey);
     QByteArray message2 = client.encryptClientInfo();
-    REQUIRE(message != message2);
+    result = (message != message2);
+    REQUIRE(result == true);
 
 }
 
@@ -270,26 +284,32 @@ TEST_CASE("client CreateChannelReply"){
     Client client;
     client.initialize();
     client.setkey(key);
+    bool result;
 
     QByteArray message = client.encryptCreateChannelReply(true, "Arkham");
-    REQUIRE(message == refMessage);
+    result = (message == refMessage);
+    REQUIRE(result == true);
 
 //different parameters
     QByteArray message2 = client.encryptCreateChannelReply(true, "Arkham2");
-    REQUIRE(message != message2);
+    result = (message != message2);
+    REQUIRE(result == true);
 
     message2 = client.encryptCreateChannelReply(false, "Arkham");
-    REQUIRE(message != message2);
+    result = (message != message2);
+    REQUIRE(result == true);
 
     message2 = client.encryptCreateChannelReply(false, "Arkham2");
-    REQUIRE(message != message2);
+    result = (message != message2);
+    REQUIRE(result == true);
 
 
 //different key
     unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
     client.setkey(bKey);
     message2 = client.encryptCreateChannelReply(true, "Arkham");
-    REQUIRE(message != message2);
+    result = (message != message2);
+    REQUIRE(result == true);
 
 }
 
@@ -308,8 +328,10 @@ TEST_CASE("encrypt message"){
     QByteArray encrypted = channel.encryptMessage(text);
 
     QByteArray refEncrypted("�h��6J?D\016N�\014��V�\016\r�,g��9YQՊ\026�\013�1�\035}�\035��^]�~;�{\017Ar��&");
+    bool result;
 
-    REQUIRE(encrypted == refEncrypted);
+    result = (encrypted == refEncrypted);
+    REQUIRE(result == true);
 
 
     //different key
@@ -317,7 +339,8 @@ TEST_CASE("encrypt message"){
     channel.setkey(bKey);
     QByteArray encrypted2 = channel.encryptMessage(text);
 
-    REQUIRE(encrypted != encrypted2);
+    result = (encrypted != encrypted2);
+    REQUIRE(result == true);
 
 }
 
@@ -326,6 +349,7 @@ TEST_CASE("encrypt and decrypt message"){
     channel.initialize();
     unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
     channel.setkey(key);
+    bool result;
 
     QString text("This us super secret message, needs to be encrypted");
     QByteArray encrypted = channel.encryptMessage(text);
@@ -341,15 +365,17 @@ TEST_CASE("encrypt and decrypt message"){
 
     //Decrypt with correct key
     QJsonDocument decryptedMessage = channel.decrypt(encryptedFull);
-    REQUIRE(decryptedMessage == refJsonDoc);
+    result = (decryptedMessage == refJsonDoc);
+    REQUIRE(result == true);
 
     //Decrypt with bad key
     unsigned char bKey[32] = { 'b', 'b', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
     channel.setkey(key);
     decryptedMessage = channel.decrypt(encryptedFull);
-    REQUIRE(decryptedMessage != refJsonDoc);
-
+    result = (decryptedMessage != refJsonDoc);
+    REQUIRE(result == true);
 }
+
 
 
 
