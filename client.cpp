@@ -1,4 +1,5 @@
 #include "client.h"
+#include <QNetworkInterface>
 
 Client::Client(quintptr port, QObject *parent) : QObject(parent), serverAddress(QHostAddress::LocalHost),
     clientServer(port, this), serverConnection(serverAddress, clientInfo, this)
