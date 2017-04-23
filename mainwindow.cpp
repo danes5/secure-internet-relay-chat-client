@@ -28,6 +28,12 @@ MainWindow::MainWindow(Client *cl, QWidget *parent) :
     refreshButton->setVisible(false);
     clientsList = ui->clientsList;
     clientsList->setVisible(false);
+    acceptRequestButton = ui->acceptRequestButton;
+    declineRequestButton = ui->declineRequestButton;
+    acceptRequestButton->setVisible(false);
+    declineRequestButton->setVisible(false);
+    requestLabel = ui->requestLabel;
+    requestLabel->setVisible(false);
 
 
 
@@ -54,6 +60,11 @@ MainWindow::MainWindow(Client *cl, QWidget *parent) :
     texts.insert("123", "This is message from 123");
     texts.insert("roman", "message from roman: this works!");
     connect(refreshButton, SIGNAL(pressed()), this, SLOT(refreshButtonPressed()));
+    connect(acceptRequestButton, SIGNAL(pressed()), this, SLOT(channelRequestAccepted()));
+    connect(declineRequestButton, SIGNAL(pressed()), this, SLOT(channelRequestDeclined()));
+    connect(client, SIGNAL(onChannelRequestReceived(QString)), this, SLOT(requestReceived(QString)) );
+    connect(this, SIGNAL(onChannelRequestAccepted()), client, SLOT(channelRequestAccepted()));
+    connect(this, SIGNAL(onChannelRequestDeclined()), client, SLOT(channelRequestDeclined()));
 
 
 }
@@ -139,6 +150,31 @@ void MainWindow::messageReceived(QString text, QString otherClient)
 void MainWindow::refreshButtonPressed()
 {
     emit onRefreshButtonPressed();
+}
+
+void MainWindow::requestReceived(QString name)
+{
+    acceptRequestButton->setVisible(true);
+    declineRequestButton->setVisible(true);
+    requestLabel->setVisible(true);
+    requestLabel->setText(QString("Received request from user: " + name));
+}
+
+void MainWindow::channelRequestAccepted()
+{
+    acceptRequestButton->setVisible(false);
+    declineRequestButton->setVisible(false);
+    requestLabel->setVisible(false);
+    emit onChannelRequestAccepted();
+
+}
+
+void MainWindow::channelRequestDeclined()
+{
+    acceptRequestButton->setVisible(false);
+    declineRequestButton->setVisible(false);
+    requestLabel->setVisible(false);
+    emit onChannelRequestDeclined();
 }
 
 void MainWindow::hideLoginUI()

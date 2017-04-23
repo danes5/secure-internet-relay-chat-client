@@ -31,6 +31,9 @@ QByteArray ServerConnection::encryptCreateChannelRequest(QString clientName)
     QJsonObject jsonObject;
     jsonObject.insert("type", "req_cre");
     jsonObject.insert("client", clientName);
+    QJsonObject clientInf;
+    clientInfo.write(clientInf);
+    jsonObject.insert("info", clientInf);
     QJsonDocument jsonDoc(jsonObject);
     QByteArray array(jsonDoc.toBinaryData());
     return gcm.encryptAndTag(array);
@@ -138,6 +141,8 @@ void ServerConnection::readyRead()
            if (type == "req_cre"){
                QString client = parser.get("client");
                qDebug() << "received request for communication from: client: " << client;
+               ClientInfo clInfo = parser.getClientInfo();
+               emit onRequestReceived(client, clInfo);
            }else
            if (type == "req_rep"){
                QString client = parser.get("client");

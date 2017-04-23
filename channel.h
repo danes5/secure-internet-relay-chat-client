@@ -13,8 +13,8 @@ class Channel : public QObject
 {
     Q_OBJECT
 public:
-    explicit Channel(quintptr descriptor, QObject *parent = nullptr);
-    explicit Channel(QHostAddress hostAddress, quintptr descriptor, QObject *parent);
+    explicit Channel(QString otherName, quintptr descriptor, QObject *parent = nullptr);
+    explicit Channel(QString otherName, QHostAddress hostAddress, quintptr descriptor, QObject *parent);
     enum ChannelStates{
         RECEIVING_MESSAGE,
         RECEIVING_FILE,
@@ -36,7 +36,7 @@ public slots:
 
 private:
     QTcpSocket* socket;
-    ClientInfo otherClient;
+    //ClientInfo otherClient;
     ChannelStates channelState;
     Buffer buffer;
 
@@ -44,6 +44,7 @@ private:
     bool encrypted = true;
     quint64 nextId;
     GcmUtils gcm;
+    QString otherClientName;
 
     void connectToHost( quintptr port, const QHostAddress &hostName = QHostAddress::LocalHost);
 

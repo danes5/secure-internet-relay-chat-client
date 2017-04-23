@@ -1,22 +1,23 @@
 #include "channel.h"
 #include "QDataStream"
 
-Channel::Channel(quintptr descriptor, QObject *parent) : QObject(parent)
+Channel::Channel(QString otherName, quintptr descriptor, QObject *parent) : QObject(parent), otherClientName(otherName)
 {
     qDebug() << "initialize server channel";
     initialize();
     socket->setSocketDescriptor(descriptor);
 }
 
-Channel::Channel(QHostAddress hostAddress, quintptr descriptor, QObject *parent) : QObject(parent)
+Channel::Channel(QString otherName, QHostAddress hostAddress, quintptr descriptor, QObject *parent) : QObject(parent), otherClientName(otherName)
 {
     initialize();
     socket->connectToHost(hostAddress, descriptor);
+    qDebug() << "channel connect to host: " << socket->isValid();
 }
 
 QString Channel::getOtherClientName()
 {
-    return otherClient.clientName;
+    //return otherClient.clientName;
 }
 
 QByteArray Channel::encryptMessage(QString text)

@@ -23,15 +23,14 @@ public:
         RECEIVE_CHANNEL_DATA
     };
     const QList<QString>* getActiveClients();
-    void connectToHost(QHostAddress HostAddress, quintptr descriptor);
-
-
 
 signals:
     void onActiveClientsUpdated(QJsonArray clients);
     void onRegistrationSuccessful();
     void onRegistrationFailed(QString message);
-    void messageReceivedSignal(QString text, QString otherClient);
+    void onMessageReceivedSignal(QString text, QString otherClient);
+    void onChannelRequestReceived(QString name);
+
 
 public slots:
     void updateActiveClients();
@@ -47,7 +46,7 @@ public slots:
      * @brief receiveCreateChannelRequest receives request from other client and passes it to UI, then send answer back to the server
      * @param name other client
      */
-    void receiveCreateChannelRequest(QString name);
+    void receiveCreateChannelRequest(QString name, ClientInfo clInfo);
 
 
     /**
@@ -69,6 +68,8 @@ public slots:
     void messageReceived(QString text, QString otherClient);
 
     void registrationReplyReceived(QString name, QString result);
+    void channelRequestAccepted();
+    void channelRequestDeclined();
 
 
 
@@ -120,6 +121,10 @@ private:
     //const qint16 port;
     bool isRegistered;
     ServerConnection serverConnection;
+
+    QString pendingClientName;
+    ClientInfo pendingClientInfo;
+    bool pendingRequest;
 
     GcmUtils gcm;
 

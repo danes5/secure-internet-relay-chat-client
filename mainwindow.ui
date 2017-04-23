@@ -289,6 +289,45 @@ background-color: red
      </rect>
     </property>
    </widget>
+   <widget class="QLabel" name="requestLabel">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>500</y>
+      <width>631</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="acceptRequestButton">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>540</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Acccept</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="declineRequestButton">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>540</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Decline</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

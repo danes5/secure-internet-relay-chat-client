@@ -5,19 +5,13 @@ Client::Client(quintptr port, QObject *parent) : QObject(parent), serverAddress(
     connect(&clientServer, SIGNAL(incomingConnectionSignal(quintptr)), this, SLOT(incomingConnection(quintptr)));
     connect( &serverConnection, SIGNAL(onRegistrationReply(QString,QString)), this, SLOT(registrationReplyReceived(QString, QString)));
     connect(&serverConnection, SIGNAL(onUpdatedActiveClients(QJsonArray)), this, SLOT(updatedActiveClients(QJsonArray)));
+    connect( &serverConnection, SIGNAL(onRequestReceived(QString, ClientInfo)), this, SLOT(receiveCreateChannelRequest(QString,ClientInfo)));
 
 }
 
 const QList<QString> *Client::getActiveClients()
 {
     return &activeClients;
-
-}
-
-void Client::connectToHost(QHostAddress hostAddress, quintptr descriptor)
-{
-    Channel* channel = new Channel(hostAddress, descriptor, this);
-    activeChannels.push_back(channel);
 
 }
 
@@ -46,8 +40,13 @@ void Client::setkey(unsigned char * newKey)
 
 
 
-void Client::receiveCreateChannelRequest(QString name)
+void Client::receiveCreateChannelRequest(QString name, ClientInfo clInfo)
 {
+    qDebug() << "received create channel request";
+    pendingRequest = true;
+    pendingClientName = name;
+    pendingClientInfo = clInfo;
+    emit onChannelRequestReceived(name);
 
 }
 
@@ -89,9 +88,9 @@ void Client::registerToServer(QString name)
 
 void Client::incomingConnection(quintptr socketDescriptor)
 {
-    qDebug() << "incoming connection on port: " << socketDescriptor;
+    qDebug() << "incoming connection by connecting to client server on port: " << socketDescriptor;
     // here we have to somehow verify whether the host attemptint to connect is the host that we accepted the request from
-    Channel* channel = new Channel(socketDescriptor, this);
+    Channel* channel = new Channel(pendingClientName, socketDescriptor, this);
     connect(channel, SIGNAL(messageReceived(QString, QString)), this, SLOT(messageReceived(QString, QString)));
     activeChannels.push_back(channel);
 }
@@ -99,7 +98,7 @@ void Client::incomingConnection(quintptr socketDescriptor)
 void Client::messageReceived(QString text, QString otherClient)
 {
     qDebug() << "message received slot!";
-    emit messageReceivedSignal(text, otherClient);
+    emit onMessageReceivedSignal(text, otherClient);
 }
 
 void Client::registrationReplyReceived(QString name, QString result)
@@ -114,6 +113,20 @@ void Client::registrationReplyReceived(QString name, QString result)
     }else{
         emit onRegistrationFailed("registration failed, try again");
     }
+}
+
+void Client::channelRequestAccepted()
+{
+    qDebug() << "channel request accepted by user on client";
+    Channel* newChannel = new Channel(pendingClientName, QHostAddress(pendingClientInfo.clientAddress), 5001, this);
+    connect(newChannel, SIGNAL(messageReceived(QString, QString)), this, SLOT(messageReceived(QString, QString)));
+    activeChannels.push_back(newChannel);
+
+}
+
+void Client::channelRequestDeclined()
+{
+    qDebug() << "channel request declined by user on client";
 }
 
 /*void Client::socketStateChanged(QAbstractSocket::SocketState state)

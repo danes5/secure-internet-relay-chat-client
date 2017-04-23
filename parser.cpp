@@ -24,6 +24,15 @@ QString Parser::get(const QString &key)
     return json[key].toString();
 }
 
+ClientInfo Parser::getClientInfo()
+{
+    ClientInfo clInfo;
+    QJsonObject infoObject = json["info"].toObject();
+    clInfo.read(infoObject);
+    return clInfo;
+
+}
+
 QJsonArray Parser::getRegisteredClients()
 {
     QJsonObject jsonClients = json["data"].toObject();

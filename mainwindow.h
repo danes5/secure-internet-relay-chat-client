@@ -38,12 +38,17 @@ public slots:
     void clientClicked(QListWidgetItem *item);
     void messageReceived(QString text, QString otherClient);
     void refreshButtonPressed();
+    void requestReceived(QString name);
+    void channelRequestAccepted();
+    void channelRequestDeclined();
 
 signals:
     void forwardSendMessage(QString communication, QString text);
     void forwardStartCommunication(QString clientName);
     void forwardRegisterToServer(QString name);
     void onRefreshButtonPressed();
+    void onChannelRequestAccepted();
+    void onChannelRequestDeclined();
 
 
 private:
@@ -70,6 +75,9 @@ private:
     QListWidget* communicationsList;
     QPushButton* refreshButton;
     QListWidget* clientsList;
+    QPushButton* acceptRequestButton;
+    QPushButton* declineRequestButton;
+    QLabel* requestLabel;
 
 
 

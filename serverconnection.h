@@ -43,6 +43,7 @@ public:
 signals:
     void onRegistrationReply(QString name, QString result);
     void onUpdatedActiveClients(QJsonArray clients);
+    void onRequestReceived(QString client, ClientInfo clInfo);
 
 private:
     QTcpSocket* socket;
