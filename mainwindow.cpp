@@ -65,6 +65,7 @@ MainWindow::MainWindow(Client *cl, QWidget *parent) :
     connect(client, SIGNAL(onChannelRequestReceived(QString)), this, SLOT(requestReceived(QString)) );
     connect(this, SIGNAL(onChannelRequestAccepted()), client, SLOT(channelRequestAccepted()));
     connect(this, SIGNAL(onChannelRequestDeclined()), client, SLOT(channelRequestDeclined()));
+    connect(client, SIGNAL(onChannelConnected(QString)), this, SLOT(channelCreated(QString)));
 
 
 }
@@ -175,6 +176,12 @@ void MainWindow::channelRequestDeclined()
     declineRequestButton->setVisible(false);
     requestLabel->setVisible(false);
     emit onChannelRequestDeclined();
+}
+
+void MainWindow::channelCreated(QString name)
+{
+    texts.insert(name, "");
+    new QListWidgetItem(name, communicationsList);
 }
 
 void MainWindow::hideLoginUI()

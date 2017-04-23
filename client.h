@@ -30,6 +30,7 @@ signals:
     void onRegistrationFailed(QString message);
     void onMessageReceivedSignal(QString text, QString otherClient);
     void onChannelRequestReceived(QString name);
+    void onChannelConnected(QString name);
 
 
 public slots:
@@ -70,6 +71,7 @@ public slots:
     void registrationReplyReceived(QString name, QString result);
     void channelRequestAccepted();
     void channelRequestDeclined();
+    void channelConnected(QString name);
 
 
 

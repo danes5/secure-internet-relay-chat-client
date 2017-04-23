@@ -41,6 +41,7 @@ public slots:
     void requestReceived(QString name);
     void channelRequestAccepted();
     void channelRequestDeclined();
+    void channelCreated(QString name);
 
 signals:
     void forwardSendMessage(QString communication, QString text);

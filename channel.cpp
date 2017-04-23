@@ -6,18 +6,23 @@ Channel::Channel(QString otherName, quintptr descriptor, QObject *parent) : QObj
     qDebug() << "initialize server channel";
     initialize();
     socket->setSocketDescriptor(descriptor);
+    emit onChannelConnected(otherName);
 }
 
 Channel::Channel(QString otherName, QHostAddress hostAddress, quintptr descriptor, QObject *parent) : QObject(parent), otherClientName(otherName)
 {
     initialize();
     socket->connectToHost(hostAddress, descriptor);
+    if (!socket->waitForConnected()){
+        qDebug() << "could not connect to socket";
+    }
+    emit onChannelConnected(otherName);
     qDebug() << "channel connect to host: " << socket->isValid();
 }
 
 QString Channel::getOtherClientName()
 {
-    //return otherClient.clientName;
+    return otherClientName;
 }
 
 QByteArray Channel::encryptMessage(QString text)
@@ -56,7 +61,7 @@ void Channel::readyRead()
            if (type == "send_message"){
                QString text = parser.get("data");
                qDebug() << "received text: " << text;
-               emit messageReceived(text, "some user");
+               emit onMessageReceived(text, "some user");
            }
 
        }

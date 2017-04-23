@@ -1,7 +1,7 @@
 #include "client.h"
 #include <QNetworkInterface>
 
-Client::Client(quintptr port, QObject *parent) : QObject(parent), serverAddress(QHostAddress::LocalHost),
+Client::Client(quintptr port, QObject *parent) : QObject(parent), serverAddress(QString("192.168.0.45")),
     clientServer(port, this), serverConnection(serverAddress, clientInfo, this)
 {
     foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
@@ -61,10 +61,10 @@ void Client::sendMessage(QString dest, QString text)
 {
     qDebug() << "sending message";
     foreach (Channel* channel, activeChannels) {
-        //if (channel->getOtherClientName() == dest){
+        if (channel->getOtherClientName() == dest){
             channel->sendMessage(text);
-          //  return;
-        //}
+            return;
+        }
     }
     // open channel for client not found, which means inconsistenct between our UI and client class.
     qWarning() << "client not found\n";
@@ -98,6 +98,7 @@ void Client::incomingConnection(quintptr socketDescriptor)
     // here we have to somehow verify whether the host attemptint to connect is the host that we accepted the request from
     Channel* channel = new Channel(pendingClientName, socketDescriptor, this);
     connect(channel, SIGNAL(messageReceived(QString, QString)), this, SLOT(messageReceived(QString, QString)));
+    connect(channel, SIGNAL(onChannelConnected(QString)), this, SLOT(channelConnected(QString)));
     activeChannels.push_back(channel);
 }
 
@@ -124,15 +125,21 @@ void Client::registrationReplyReceived(QString name, QString result)
 void Client::channelRequestAccepted()
 {
     qDebug() << "channel request accepted by user on client";
-    Channel* newChannel = new Channel(pendingClientName, QHostAddress(pendingClientInfo.clientAddress), 5001, this);
-    connect(newChannel, SIGNAL(messageReceived(QString, QString)), this, SLOT(messageReceived(QString, QString)));
-    activeChannels.push_back(newChannel);
+    Channel* channel = new Channel(pendingClientName, QHostAddress(pendingClientInfo.clientAddress), 5001, this);
+    connect(channel, SIGNAL(messageReceived(QString, QString)), this, SLOT(messageReceived(QString, QString)));
+    connect(channel, SIGNAL(onChannelConnected(QString)), this, SLOT(channelConnected(QString)));
+    activeChannels.push_back(channel);
 
 }
 
 void Client::channelRequestDeclined()
 {
     qDebug() << "channel request declined by user on client";
+}
+
+void Client::channelConnected(QString name)
+{
+    emit onChannelConnected(name);
 }
 
 /*void Client::socketStateChanged(QAbstractSocket::SocketState state)
