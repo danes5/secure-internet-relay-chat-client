@@ -8,7 +8,7 @@
     //socket->write("akafuka", 7);
 }*/
 
-ServerConnection::ServerConnection(QHostAddress serverAddress, QObject *parent = nullptr) : QObject(parent)
+ServerConnection::ServerConnection(QHostAddress serverAddress, const ClientInfo &clInfo, QObject *parent = nullptr) : QObject(parent), clientInfo(clInfo)
 {
     initialize();
     socket->connectToHost(serverAddress, 5000);

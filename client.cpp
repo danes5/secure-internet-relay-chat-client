@@ -1,7 +1,12 @@
 #include "client.h"
 
-Client::Client(quintptr port, QObject *parent) : QObject(parent), serverAddress(QHostAddress::LocalHost), clientServer(port, this), serverConnection(serverAddress, this)
+Client::Client(quintptr port, QObject *parent) : QObject(parent), serverAddress(QHostAddress::LocalHost),
+    clientServer(port, this), serverConnection(serverAddress, clientInfo, this)
 {
+    foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
+        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
+             clientInfo.clientAddress = address.toString();
+    }
     connect(&clientServer, SIGNAL(incomingConnectionSignal(quintptr)), this, SLOT(incomingConnection(quintptr)));
     connect( &serverConnection, SIGNAL(onRegistrationReply(QString,QString)), this, SLOT(registrationReplyReceived(QString, QString)));
     connect(&serverConnection, SIGNAL(onUpdatedActiveClients(QJsonArray)), this, SLOT(updatedActiveClients(QJsonArray)));

@@ -54,7 +54,7 @@ MainWindow::MainWindow(Client *cl, QWidget *parent) :
                      QApplication::instance(), SLOT(quit()));
     connect(client, SIGNAL(onRegistrationSuccessful()), this, SLOT(hideLoginUI()));
     connect(client, SIGNAL(onRegistrationFailed(QString)), this, SLOT(showLoginError(QString)));
-    connect(client, SIGNAL(messageReceivedSignal(QString,QString)), this, SLOT(messageReceived(QString, QString)));
+    connect(client, SIGNAL(onMessageReceivedSignal(QString,QString)), this, SLOT(messageReceived(QString, QString)));
     connect(this, SIGNAL(onRefreshButtonPressed()), client, SLOT(updateActiveClients()));
     texts.insert("nobody", "This is a message form someone");
     texts.insert("123", "This is message from 123");

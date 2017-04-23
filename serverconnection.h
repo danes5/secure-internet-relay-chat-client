@@ -13,7 +13,7 @@ class ServerConnection : public QObject
     Q_OBJECT
 public:
     //ServerConnection();
-    explicit ServerConnection(QHostAddress serverAddress, QObject* parent);
+    explicit ServerConnection(QHostAddress serverAddress, const ClientInfo& clInfo, QObject* parent);
 
     QByteArray encryptRegistrationRequest(QString clientName);
     QByteArray encryptCreateChannelRequest(QString clientName);
@@ -48,7 +48,7 @@ signals:
 private:
     QTcpSocket* socket;
     GcmUtils gcm;
-    ClientInfo clientInfo;
+    const ClientInfo& clientInfo;
     Buffer buffer;
     bool encrypted = true;
     quint64 nextId;
