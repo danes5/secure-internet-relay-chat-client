@@ -2,24 +2,13 @@
 // Created by roman on 27.2.2017.
 //
 
-#ifndef PB173_TEST_SECURITYFUNCTIONS_H
-#define PB173_TEST_SECURITYFUNCTIONS_H
+
+#include "securityfunctions.h"
+#include <QDebug>
 
 
 
 
-#include "libs/cipher.h"
-#include "libs/aes.h"
-#include "libs/sha512.h"
-
-
-
-
-#include <iostream>
-#include <fstream>
-#include <string.h>
-#include <sstream>
-#include <iomanip>
 
 //pre-generated random key
 unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
@@ -42,7 +31,7 @@ void printHelp(){
     std::cout << "verifyhash  <source> <hash_source>" << std::endl;
 }
 
-void hashFileSHA2_512(const char* src, const char* dest = nullptr){
+void hashFileSHA2_512(const char* src, const char* dest){
     std::ifstream source(src, std::ios::in);
     if (! source.is_open()){
         return;
@@ -92,7 +81,33 @@ bool verifyHashSHA_512(const char* src, const char* hashDest){
 
 }
 
-void encryptFileAES_128(const char* src, const char* dest = nullptr) {
+/*void encryptDataAES_128(unsigned char* message, size_t input_len , mbedtls_aes_context* context, unsigned char *iv, unsigned char* output){
+    size_t output_len = (inbuffer.length() / 16) * 16;
+    if (input_len % 16 != 0)
+        output_len += 16;
+    input = new unsigned char[output_len]();
+    memcpy(input, message, input_len);
+    output = new unsigned char[output_len]();
+    unsigned char local_iv[16];
+    memcpy(local_iv, iv, 16);
+    mbedtls_aes_crypt_cbc(aes, MBEDTLS_AES_ENCRYPT, output_len, local_iv, input, output);
+}
+
+void decrypyDataAES_128(unsigned char *input, size_t input_len, size_t output_len, mbedtls_aes_context *context, unsigned char *iv, unsigned char *output)
+{
+    // if message was correctly encrypted and sent to us, then it should have length divisible by 16
+    if (input_len % 16 != 0){
+        return;
+    }
+    unsigned char local_iv[16];
+    memcpy(local_iv, iv, 16);
+    unsigned char* out = new unsigned char[input_len]();
+    output = new unsigned char[output_len]();
+    mbedtls_aes_crypt_cbc( &aes, MBEDTLS_AES_DECRYPT, output_len, local_iv, input, out );
+    std::copy(out, out + output_len , output);
+}*/
+
+void encryptFileAES_128(const char* src, const char* dest) {
 
     std::ifstream source(src, std::ios::in);
     if (!source.is_open()) {
@@ -125,7 +140,7 @@ void encryptFileAES_128(const char* src, const char* dest = nullptr) {
 
 
 
-void decryptFileAES_128(const char* src, unsigned long outputLength, const char* dest = nullptr){
+void decryptFileAES_128(const char* src, unsigned long outputLength, const char* dest){
 
     std::ifstream source(src, std::ios::in);
     if (! source.is_open()){
@@ -159,5 +174,35 @@ void decryptFileAES_128(const char* src, unsigned long outputLength, const char*
 
 
 
+int encryptDataGCM(const unsigned char *input, size_t input_len, mbedtls_gcm_context *context,
+                        const unsigned char* unprotectedData, size_t unprotectedLength,
+                        unsigned char *iv, size_t iv_len, size_t tag_len, unsigned char *tag, unsigned char* output)
+{
+    //output = new unsigned char[input_len]();
+    unsigned char local_iv[iv_len];
+    memcpy(local_iv, iv, iv_len);
+    int result = mbedtls_gcm_crypt_and_tag(context, MBEDTLS_GCM_ENCRYPT, input_len,
+                 local_iv, iv_len, unprotectedData, unprotectedLength, input, output,
+                 tag_len, tag);
+    //qDebug() << "enc tag:" << tag;
+    if (result !=0)
+        qDebug() << "encryption failed : " << result;
+    return result;
 
-#endif //PB173_TEST_SECURITYFUNCTIONS_H
+
+}
+
+int decryptDataGCM(const unsigned char *input, size_t input_len, mbedtls_gcm_context *context,
+                   const unsigned char* unprotectedData, size_t unprotectedLength,
+                   const unsigned char *iv, size_t iv_len, size_t tag_len, const unsigned char *tag,
+                   unsigned char* output){
+    //output = new unsigned char[input_len]();
+    unsigned char local_iv[iv_len];
+    memcpy(local_iv, iv, iv_len);
+
+    //qDebug() << "dec tag:" << tag;
+    int result = mbedtls_gcm_auth_decrypt(context, input_len,
+                 local_iv, iv_len, unprotectedData, unprotectedLength, tag, tag_len, input, output);
+    return result;
+
+}

@@ -20,7 +20,7 @@ QByteArray GcmUtils::encryptAndTag(QByteArray data)
     //qDebug() << output;
 
 //    stream << length;
-    memcpy(output, QString::number(length).constData(), sizeof(quint64));
+    memcpy(output, (const char *) &length, sizeof(quint64));
     memcpy(output + sizeof(quint64), tag, tag_len);
 
 //    for (int i =0; i < tag_len; ++i){
@@ -30,7 +30,8 @@ QByteArray GcmUtils::encryptAndTag(QByteArray data)
 //    for (int i =0; i < data.length(); ++i){
 //        stream << output[i];
 //    }
-    encrypted.fromRawData((const char *)output, length + sizeof(quint64));
+    encrypted = QByteArray((const char *)output, length + sizeof(quint64));
+    //encrypted.fromRawData((const char *)output, length + sizeof(quint64));
     //stream << (const char *)output;
 
     //data.prepend((const char *)tag, tag_len);
@@ -44,7 +45,7 @@ QJsonDocument GcmUtils::decryptAndAuthorizeFull(QByteArray array){
     //QByteArray tagArray = array.mid(0, tag_len);
     //QDataStream stream(array);
     //stream >> tagArray;
-    qDebug() << "tag array decryption" << tagArray;
+    //qDebug() << "tag array decryption" << tagArray;
     QByteArray body = array.mid(tag_len, -1);
     return decryptAndAuthorizeBody(body, tagArray);
 }
@@ -60,7 +61,11 @@ QJsonDocument GcmUtils::decryptAndAuthorizeBody(QByteArray array, const char* ta
     }
 
     //QByteArray decryptedData((const char *)output);
-    return QJsonDocument::fromRawData((const char *)output, array.length());
+    QByteArray decryptedData = QByteArray((const char *)output, array.length());
+
+    QJsonDocument doc = QJsonDocument::fromBinaryData(decryptedData);
+    //QString type = doc.object()["type"].toString();
+    return doc;
 }
 
 void GcmUtils::initialize(){
@@ -79,5 +84,5 @@ void GcmUtils::setKey(unsigned char * newKey){
     memcpy(key, newKey, keyBits);
     int result = mbedtls_gcm_setkey( &context,
                                      MBEDTLS_CIPHER_ID_AES, newKey, keyBits * 8 );
-    qDebug() << "result" << result;
+    //qDebug() << "result" << result;
 }

@@ -1,21 +1,78 @@
-//
-// Created by roman on 27.2.2017.
-//
+#include <QCoreApplication>
+//#include "Server.hpp"
+#include <QDebug>
 
+#include <QJsonDocument>
+#include <QJsonValue>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QIODevice>
+#include <QByteArray>
 
-
-
-#include "securityfunctions.h"
-#include "ios"
 
 // Tell CATCH to define its main function here
-#define CATCH_CONFIG_MAIN
+//#define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
+#include "securityfunctions.h"
+#include "client.h"
+#include "clientslistmodel.h"
+#include "channel.h"
+
+/*Client client;
+Client client2;
+QList<QString> *list = client.getActiveClients();
+
+TEST_CASE("test Client") {
+    REQUIRE(*list[0].size() == 2);
+
+    REQUIRE(*list[0].toString() == "Johny");
+    REQUIRE(*list[1].toString() == "Billy");
+
+    REQUIRE(*list[0].toString() == "Johny");
+
+    client.registerToServer("Munchkin");
+    REQUIRE(client.registrationInfo() == true);
+
+    //client2.registerToServer("Munchkin");
+    //REQUIRE(client.registrationInfo() == false);
+
+    //client2.registerToServer("Munchkin2");
+    //REQUIRE(client.registrationInfo() == true);
+}
 
 
+TEST_CASE("test SendMessage") {
+    REQUIRE(client.sendMessage("Johny", "wdada") == 0);
+    REQUIRE(client.sendMessage("Billy", "wdada") == 0);
 
-TEST_CASE("test hash", "[sha-512]") {
+    REQUIRE(client.sendMessage("Error", "wdada") == 0);
+}
+
+
+TEST_CASE("test Channel") {
+    Channel chanal();
+
+    REQUIRE(chanal.getOtherClientName() == "Johny");
+}
+
+
+ClientInfo info;
+info.clientName = "Munchkin";
+info.clientAddress =  = QHostAddress(192.168.0.2);
+
+
+TEST_CASE("test ClientInfo") {
+    QJsonObject json;
+    info.write(&json);
+
+    REQUIRE(json["names"] == "Munchkin");
+}
+
+*/
+// --------------------------------SECTION BASIC MBEDTLS TESTS ----------------------------------------------------------------
+
+/*TEST_CASE("test hash", "[sha-512]") {
     std::ofstream source("./files/in", std::ios::out);
     if (! source.is_open()){
         return;
@@ -111,8 +168,73 @@ TEST_CASE("test encryption and decryption","[aes-128]"){
     std::string originalInput;
 
     REQUIRE(originalInput == decryptedText);
+}
 
 
+TEST_CASE("GCM"){
+
+    const size_t tag_len = 16;
+    unsigned char tag[tag_len];
+
+    unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+
+    static constexpr size_t iv_len = 16;
+    unsigned char iv[iv_len] = { 14, 31, 60, 126, 81, 12, 36, 102, 57, 9, 42, 51, 111, 4, 3, 25 };
+
+    QByteArray *data = new QByteArray("This us super secret message, needs to be encrypted");
+    quint64 length = data->length() + tag_len;
+
+    unsigned char output[data->length()];
+
+
+    mbedtls_gcm_context context;
+    mbedtls_gcm_init( &context );
+    mbedtls_gcm_setkey( &context, MBEDTLS_CIPHER_ID_AES, key, 256 );
+
+    encryptDataGCM((const unsigned char *)data->constData(), length - tag_len, &context, nullptr, 0, iv, iv_len, tag_len, tag, output);
+
+    QByteArray encrypted;
+    QDataStream stream(&encrypted, QIODevice::ReadWrite);
+
+    stream << length << tag << (const char *)output;
+
+    qDebug() << "output" << encrypted;
 
 }
 
+
+// ------------------------------------------ SECTION CLIENT TESTS -----------------------------------------------------------
+
+TEST_CASE("client encrypt message"){
+
+    unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    Channel channel;
+    channel.initialize();
+    channel.setkey(key);
+    QString text("This us super secret message, needs to be encrypted");
+    QByteArray encrypted = channel.encryptMessage(text);
+    qDebug() << "encrypted:" << encrypted;
+}
+
+TEST_CASE("encrypt and decrypt message"){
+    Channel channel;
+    channel.initialize();
+    unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
+    channel.setkey(key);
+    QString text("This us super secret message, needs to be encrypted");
+    QByteArray encrypted = channel.encryptMessage(text);
+    QByteArray encryptedFull = encrypted.mid(sizeof(quint64), -1);
+    QDataStream stream(encrypted);
+    quint64 length;
+    stream >> length;
+    qDebug() << "length after decrypted" << length;
+
+    QJsonDocument decryptedMessage = channel.decrypt(encryptedFull);
+
+    QJsonObject json = decryptedMessage.object();
+    REQUIRE(json["type"] == QString("send_message"));
+    REQUIRE(json["data"] == QString("This us super secret message, needs to be encrypted"));
+    //qDebug() << "------------textasdasdasdkjnaksjdn" << json;
+
+}
+*/
