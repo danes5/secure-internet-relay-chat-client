@@ -14,7 +14,8 @@ class Channel : public QObject
     Q_OBJECT
 public:
     explicit Channel(QString otherName, quintptr descriptor, QObject *parent = nullptr);
-    explicit Channel(QString otherName, QHostAddress hostAddress, quintptr descriptor, QObject *parent);
+    //explicit Channel(QString otherName, QHostAddress hostAddress, quintptr descriptor, QObject *parent);
+    explicit Channel(QObject *parent = nullptr);
     enum ChannelStates{
         RECEIVING_MESSAGE,
         RECEIVING_FILE,
@@ -47,13 +48,15 @@ private:
     GcmUtils gcm;
     QString otherClientName;
 
-    void connectToHost( quintptr port, const QHostAddress &hostName = QHostAddress::LocalHost);
+
 
 public:
     void initialize();
+    void connectToHost(QString otherName, const QHostAddress &hostAddress = QHostAddress::LocalHost, quintptr port = 5001);
 
     unsigned char * generateGcmKey();
     void setkey(unsigned char * newKey);
+
 
 
 };

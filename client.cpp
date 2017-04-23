@@ -98,8 +98,9 @@ void Client::incomingConnection(quintptr socketDescriptor)
     // here we have to somehow verify whether the host attemptint to connect is the host that we accepted the request from
     Channel* channel = new Channel(pendingClientName, socketDescriptor, this);
     connect(channel, SIGNAL(onMessageReceived(QString, QString)), this, SLOT(messageReceived(QString, QString)));
-    connect(channel, SIGNAL(onChannelConnected(QString)), this, SLOT(channelConnected(QString)));
+    //connect(channel, SIGNAL(onChannelConnected(QString)), this, SLOT(channelConnected(QString)));
     activeChannels.push_back(channel);
+    emit onChannelConnected(pendingClientName);
 }
 
 void Client::messageReceived(QString text, QString otherClient)
@@ -125,9 +126,10 @@ void Client::registrationReplyReceived(QString name, QString result)
 void Client::channelRequestAccepted()
 {
     qDebug() << "channel request accepted by user on client";
-    Channel* channel = new Channel(pendingClientName, QHostAddress(pendingClientInfo.clientAddress), 5001, this);
+    Channel* channel = new Channel(this);
     connect(channel, SIGNAL(onMessageReceived(QString, QString)), this, SLOT(messageReceived(QString, QString)));
     connect(channel, SIGNAL(onChannelConnected(QString)), this, SLOT(channelConnected(QString)));
+    channel->connectToHost(pendingClientName, QHostAddress(pendingClientInfo.clientAddress));
     activeChannels.push_back(channel);
 
 }

@@ -6,19 +6,16 @@ Channel::Channel(QString otherName, quintptr descriptor, QObject *parent) : QObj
     qDebug() << "initialize server channel";
     initialize();
     socket->setSocketDescriptor(descriptor);
-    emit onChannelConnected(otherName);
+    qDebug() << "before emit";
+    //emit onChannelConnected(otherName);
+    qDebug() << "after emit";
 }
 
-Channel::Channel(QString otherName, QHostAddress hostAddress, quintptr descriptor, QObject *parent) : QObject(parent), otherClientName(otherName)
+Channel::Channel(QObject *parent) : QObject(parent)
 {
     initialize();
-    socket->connectToHost(hostAddress, descriptor);
-    if (!socket->waitForConnected()){
-        qDebug() << "could not connect to socket";
-    }
-    emit onChannelConnected(otherName);
-    qDebug() << "channel connect to host: " << socket->isValid();
 }
+
 
 QString Channel::getOtherClientName()
 {
@@ -68,9 +65,14 @@ void Channel::readyRead()
    }
 }
 
-void Channel::connectToHost(quintptr port = 5001, const QHostAddress &hostName)
+void Channel::connectToHost(QString otherName, const QHostAddress &hostAddress, quintptr port)
 {
-     socket->connectToHost(hostName, port);
+    socket->connectToHost(hostAddress, port);
+    if (!socket->waitForConnected()){
+        qDebug() << "could not connect to socket";
+    }
+    emit onChannelConnected(otherName);
+    qDebug() << "channel connect to host: " << socket->isValid();
 }
 
 void processReceivedData(QByteArray& array){
