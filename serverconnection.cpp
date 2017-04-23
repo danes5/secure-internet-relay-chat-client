@@ -8,10 +8,10 @@
     //socket->write("akafuka", 7);
 }*/
 
-ServerConnection::ServerConnection(QObject *parent = nullptr) : QObject(parent)
+ServerConnection::ServerConnection(QHostAddress serverAddress, QObject *parent = nullptr) : QObject(parent)
 {
     initialize();
-    socket->connectToHost(QHostAddress::LocalHost, 5000);
+    socket->connectToHost(serverAddress, 5000);
     qDebug() << "constructor";
 }
 
@@ -129,6 +129,11 @@ void ServerConnection::readyRead()
            QString type = parser.get("type");
            if (type == "ret_cli"){
                 qDebug() << "returned get clients";
+                auto clients = parser.getRegisteredClients();
+                for (auto it : clients){
+                    qDebug() << it.toString();
+                }
+                emit onUpdatedActiveClients(clients);
            }else
            if (type == "req_cre"){
                QString client = parser.get("client");
@@ -147,6 +152,7 @@ void ServerConnection::readyRead()
 
        }
     }
+   buffer.reset();
 
 }
 

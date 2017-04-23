@@ -1,9 +1,10 @@
 #include "client.h"
 
-Client::Client(quintptr port, QObject *parent) : QObject(parent), clientServer(port, this), serverConnection(this), serverName("server not yet set up")
+Client::Client(quintptr port, QObject *parent) : QObject(parent), clientServer(port, this), serverConnection(serverAddress, this), serverName("server not yet set up")
 {
     connect(&clientServer, SIGNAL(incomingConnectionSignal(quintptr)), this, SLOT(incomingConnection(quintptr)));
     connect( &serverConnection, SIGNAL(onRegistrationReply(QString,QString)), this, SLOT(registrationReplyReceived(QString, QString)));
+    connect(&serverConnection, SIGNAL(onUpdatedActiveClients(QJsonArray)), this, SLOT(updatedActiveClients(QJsonArray)));
 
 }
 
@@ -24,6 +25,7 @@ void Client::connectToHost(QHostAddress hostAddress, quintptr descriptor)
 void Client::sendCreateChannelRequest(QString name)
 {
     qDebug() << "sending create channel request to the server\n";
+    serverConnection.sendCreateChannelRequest(name);
 }
 
 /*void Client::initialize(){
@@ -165,5 +167,12 @@ void Client::verifyServerMessageID()
 
 
 void Client::updateActiveClients(){
+    qDebug() << "client update active clients";
+    serverConnection.sendGetActiveClientsRequest();
 
+}
+
+void Client::updatedActiveClients(QJsonArray clients)
+{
+    emit onActiveClientsUpdated(clients);
 }

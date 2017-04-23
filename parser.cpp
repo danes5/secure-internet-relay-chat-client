@@ -23,3 +23,10 @@ QString Parser::get(const QString &key)
 {
     return json[key].toString();
 }
+
+QJsonArray Parser::getRegisteredClients()
+{
+    QJsonObject jsonClients = json["data"].toObject();
+    QJsonArray names = jsonClients["names"].toArray();
+    return names;
+}

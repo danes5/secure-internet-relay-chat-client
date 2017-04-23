@@ -28,13 +28,15 @@ public:
 
 
 signals:
-    void activeClientsUpdated(const QList<QString>* activeClients);
+    void onActiveClientsUpdated(QJsonArray clients);
     void onRegistrationSuccessful();
     void onRegistrationFailed(QString message);
     void messageReceivedSignal(QString text, QString otherClient);
 
 public slots:
     void updateActiveClients();
+
+    void updatedActiveClients(QJsonArray clients);
     /**
      * @brief sendCreateChannelRequest called from UI, attempts to start communication with other client
      * @param name other client
@@ -119,6 +121,8 @@ private:
     ServerConnection serverConnection;
 
     GcmUtils gcm;
+
+    const QHostAddress serverAddress = QHostAddress::LocalHost;
 
 
 

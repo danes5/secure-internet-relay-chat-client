@@ -7,7 +7,6 @@
 #include <QTextBrowser>
 #include <QListView>
 #include <QColumnView>
-#include "activecommunicationsmodel.h"
 #include <QPushButton>
 #include <QLabel>
 #include <QFrame>
@@ -27,7 +26,7 @@ public:
     ~MainWindow();
 
 public slots:
-    void updateActiveClients(const QList<QString> *clients);
+    void updateActiveClients(QJsonArray clients);
     void onCommunicationClicked(QListWidgetItem *item);
     void addCommunication(QString name);
     void removeCommunication(QString name);
@@ -36,13 +35,15 @@ public slots:
     void onLoginButtonClicked();
     void hideLoginUI();
     void showLoginError(QString message);
-    void clientClicked(const QModelIndex &index);
+    void clientClicked(QListWidgetItem *item);
     void messageReceived(QString text, QString otherClient);
+    void refreshButtonPressed();
 
 signals:
     void forwardSendMessage(QString communication, QString text);
     void forwardStartCommunication(QString clientName);
     void forwardRegisterToServer(QString name);
+    void onRefreshButtonPressed();
 
 
 private:
@@ -51,14 +52,14 @@ private:
     QMap<QString, QString> texts;
     QString activeCommunication;
     QString selectedClient;
-    ClientsListModel clientsListModel;
+    //ClientsListModel clientsListModel;
     //ActiveCommunicationsModel communicationsListModel;
     QTextBrowser *textDisplayer;
     QTextEdit *textEdit;
     QPushButton *sendMessageButton;
     QPushButton *sendFileButton;
     QPushButton *startCommunicationButton;
-    QListView *activeClientsView;
+    //QListView *activeClientsView;
     //QListView *activeCommunicationsView;
     QLabel *enterNameLabel;
     QLineEdit *enterNameTextEdit;
@@ -67,6 +68,8 @@ private:
     QPushButton* quitButton;
     QLabel *loginErrorLabel;
     QListWidget* communicationsList;
+    QPushButton* refreshButton;
+    QListWidget* clientsList;
 
 
 

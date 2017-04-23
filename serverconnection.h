@@ -13,7 +13,7 @@ class ServerConnection : public QObject
     Q_OBJECT
 public:
     //ServerConnection();
-    explicit ServerConnection(QObject* parent);
+    explicit ServerConnection(QHostAddress serverAddress, QObject* parent);
 
     QByteArray encryptRegistrationRequest(QString clientName);
     QByteArray encryptCreateChannelRequest(QString clientName);
@@ -42,6 +42,7 @@ public:
 
 signals:
     void onRegistrationReply(QString name, QString result);
+    void onUpdatedActiveClients(QJsonArray clients);
 
 private:
     QTcpSocket* socket;

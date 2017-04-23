@@ -10,28 +10,34 @@ MainWindow::MainWindow(Client *cl, QWidget *parent) :
     client = cl;
     textDisplayer = ui->textDisplayer;
     textEdit = ui->textEdit;
-    activeClientsView = ui->activeClientsView;
     sendMessageButton = ui->sendMessageButton;
     sendFileButton = ui->sendFileButton;
     startCommunicationButton = ui->startCommunicationsButton;
-    clientsListModel.setSource(client->getActiveClients());
     enterNameButton = ui->enterNameButton;
     enterNameFrame = ui->enterNameFrame;
     enterNameLabel = ui->enterNameLabel;
     enterNameTextEdit = ui->enterNameEdit;
     quitButton = ui->quitButton;
     loginErrorLabel = ui->loginErrorLabel;
+    refreshButton = ui->refreshButton;
     loginErrorLabel->setVisible(false);
     communicationsList = ui->communicationsWidget;
+    communicationsList->setVisible(false);
+    textDisplayer->setVisible(false);
+    startCommunicationButton->setVisible(false);
+    refreshButton->setVisible(false);
+    clientsList = ui->clientsList;
+    clientsList->setVisible(false);
 
-    activeClientsView->setModel(&clientsListModel);
+
+
     // connects signal from client that list of active users has changed with slot in this class which updates it
-    connect(client, SIGNAL(activeClientsUpdated(const QList<QString>*)), this, SLOT(updateActiveClients(const QList<QString>*)));
+    connect(client, SIGNAL(onActiveClientsUpdated(QJsonArray)), this, SLOT(updateActiveClients(QJsonArray)));
     //connect(activeCommunicationsView,SIGNAL(clicked(const QModelIndex &)), this, SLOT(onCommunicationClicked(const QModelIndex &)));
     connect(communicationsList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onCommunicationClicked(QListWidgetItem*)));
+    connect(clientsList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(clientClicked(QListWidgetItem*)));
 
-
-    connect(activeClientsView,SIGNAL(clicked(const QModelIndex &)), this, SLOT(clientClicked(const QModelIndex &)));
+    //connect(activeClientsView,SIGNAL(clicked(const QModelIndex &)), this, SLOT(clientClicked(const QModelIndex &)));
     connect(sendMessageButton, SIGNAL(pressed()), this, SLOT(sendMessageButtonPressed()));
     connect(this, SIGNAL(forwardSendMessage(QString, QString)), client, SLOT(sendMessage(QString,QString)));
     connect(this, SIGNAL(forwardStartCommunication(QString)), client, SLOT(sendCreateChannelRequest(QString)));
@@ -43,10 +49,11 @@ MainWindow::MainWindow(Client *cl, QWidget *parent) :
     connect(client, SIGNAL(onRegistrationSuccessful()), this, SLOT(hideLoginUI()));
     connect(client, SIGNAL(onRegistrationFailed(QString)), this, SLOT(showLoginError(QString)));
     connect(client, SIGNAL(messageReceivedSignal(QString,QString)), this, SLOT(messageReceived(QString, QString)));
+    connect(this, SIGNAL(onRefreshButtonPressed()), client, SLOT(updateActiveClients()));
     texts.insert("nobody", "This is a message form someone");
     texts.insert("123", "This is message from 123");
     texts.insert("roman", "message from roman: this works!");
-    activeClientsView->show();
+    connect(refreshButton, SIGNAL(pressed()), this, SLOT(refreshButtonPressed()));
 
 
 }
@@ -56,9 +63,12 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::updateActiveClients(const QList<QString>* clients )
+void MainWindow::updateActiveClients(QJsonArray clients )
 {
-    clientsListModel.setSource(clients);
+    clientsList->clear();
+    for (auto cl : clients){
+        new QListWidgetItem(cl.toString(), clientsList);
+    }
 }
 
 void MainWindow::onCommunicationClicked(QListWidgetItem* item)
@@ -110,12 +120,9 @@ void MainWindow::showLoginError(QString message)
     loginErrorLabel->setVisible(true);
 }
 
-void MainWindow::clientClicked(const QModelIndex &index)
+void MainWindow::clientClicked(QListWidgetItem* item)
 {
-    if (index.isValid()) {
-        selectedClient = index.data().toString();
-        activeClientsView->setCurrentIndex(index);
-    }
+    selectedClient = item->text();
 }
 
 void MainWindow::messageReceived(QString text, QString otherClient)
@@ -129,6 +136,11 @@ void MainWindow::messageReceived(QString text, QString otherClient)
 
 }
 
+void MainWindow::refreshButtonPressed()
+{
+    emit onRefreshButtonPressed();
+}
+
 void MainWindow::hideLoginUI()
 {
     loginErrorLabel->setVisible(false);
@@ -136,4 +148,9 @@ void MainWindow::hideLoginUI()
     enterNameButton->setVisible(false);
     enterNameFrame->setVisible(false);
     enterNameTextEdit->setVisible(false);
+    communicationsList->setVisible(true);
+    textDisplayer->setVisible(true);
+    startCommunicationButton->setVisible(true);
+    refreshButton->setVisible(true);
+    clientsList->setVisible(true);
 }
