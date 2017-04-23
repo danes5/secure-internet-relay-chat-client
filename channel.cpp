@@ -65,6 +65,7 @@ void Channel::readyRead()
 
        }
    }
+   buffer.reset();
 }
 
 void Channel::connectToHost(QString otherName, const QHostAddress &hostAddress, quintptr port)
