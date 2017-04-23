@@ -127,7 +127,7 @@ void Client::registrationReplyReceived(QString name, QString result)
 void Client::channelRequestAccepted()
 {
     qDebug() << "channel request accepted by user on client";
-    Channel* channel = new Channel(this);
+    Channel* channel = new Channel(pendingClientName, this);
     connect(channel, SIGNAL(onMessageReceived(QString, QString)), this, SLOT(messageReceived(QString, QString)));
     connect(channel, SIGNAL(onChannelConnected(QString)), this, SLOT(channelConnected(QString)));
     channel->connectToHost(pendingClientName, QHostAddress(pendingClientInfo.clientAddress));

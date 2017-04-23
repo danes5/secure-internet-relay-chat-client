@@ -5,15 +5,17 @@ Channel::Channel(QString otherName, quintptr descriptor, QObject *parent) : QObj
 {
     qDebug() << "initialize server channel";
     initialize();
+    otherClientName = otherName;
     socket->setSocketDescriptor(descriptor);
     qDebug() << "before emit";
     //emit onChannelConnected(otherName);
     qDebug() << "after emit";
 }
 
-Channel::Channel(QObject *parent) : QObject(parent)
+Channel::Channel(QString otherName, QObject *parent) : QObject(parent)
 {
     initialize();
+    otherClientName = otherName;
 }
 
 

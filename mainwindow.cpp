@@ -144,6 +144,10 @@ void MainWindow::messageReceived(QString text, QString otherClient)
     texts[otherClient].append(text);
     if (communicationsList->findItems(otherClient, Qt::MatchExactly).isEmpty())
         new QListWidgetItem(otherClient, communicationsList);
+    if (activeCommunication == otherClient){
+        textDisplayer->setText(*texts.find(activeCommunication));
+    }
+
 
 
 

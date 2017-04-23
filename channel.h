@@ -15,7 +15,7 @@ class Channel : public QObject
 public:
     explicit Channel(QString otherName, quintptr descriptor, QObject *parent = nullptr);
     //explicit Channel(QString otherName, QHostAddress hostAddress, quintptr descriptor, QObject *parent);
-    explicit Channel(QObject *parent = nullptr);
+    explicit Channel(QString otherName, QObject *parent = nullptr);
     enum ChannelStates{
         RECEIVING_MESSAGE,
         RECEIVING_FILE,
