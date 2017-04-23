@@ -26,6 +26,7 @@ void Client::sendCreateChannelRequest(QString name)
 {
     qDebug() << "sending create channel request to the server\n";
     serverConnection.sendCreateChannelRequest(name);
+    pendingClientName = name;
 }
 
 /*void Client::initialize(){

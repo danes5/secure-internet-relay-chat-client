@@ -58,7 +58,7 @@ void Channel::readyRead()
            if (type == "send_message"){
                QString text = parser.get("data");
                qDebug() << "received text: " << text;
-               emit onMessageReceived(text, "some user");
+               emit onMessageReceived(text, otherClientName);
            }
 
        }
