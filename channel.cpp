@@ -1,5 +1,6 @@
 #include "channel.h"
 #include "QDataStream"
+#include <iostream>
 
 Channel::Channel(QString otherName, quintptr descriptor, QObject *parent) : QObject(parent), otherClientName(otherName)
 {
@@ -59,6 +60,8 @@ void Channel::readyRead()
            QString type = parser.get("type");
            if (type == "send_message"){
                QString text = parser.get("data");
+               text.prepend(otherClientName + "> ");
+               text.append("\n");
                qDebug() << "received text: " << text;
                emit onMessageReceived(text, otherClientName);
            }

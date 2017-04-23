@@ -112,6 +112,8 @@ void MainWindow::sendMessageButtonPressed()
 {
     QString text = textEdit->toPlainText();
     textEdit->clear();
+    texts[activeCommunication].append("you> " + text + "\n");
+    textDisplayer->setText(texts[activeCommunication]);
     emit forwardSendMessage(activeCommunication, text);
 }
 
