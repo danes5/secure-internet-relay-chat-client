@@ -108,6 +108,7 @@ private:
     void verifyServerMessageID();
     void processReceivingType();
 
+    const QHostAddress serverAddress;
     QList<QString> activeClients;
     QList<Channel*> activeChannels;
     ClientInfo clientInfo;
@@ -115,14 +116,14 @@ private:
     //NetworkTransmission currentTransmission;
 
 
-    const QString serverName;
+    //const QString serverName;
     //const qint16 port;
     bool isRegistered;
     ServerConnection serverConnection;
 
     GcmUtils gcm;
 
-    const QHostAddress serverAddress = QHostAddress::LocalHost;
+
 
 
 

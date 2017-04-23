@@ -1,6 +1,6 @@
 #include "client.h"
 
-Client::Client(quintptr port, QObject *parent) : QObject(parent), clientServer(port, this), serverConnection(serverAddress, this), serverName("server not yet set up")
+Client::Client(quintptr port, QObject *parent) : QObject(parent), serverAddress(QHostAddress::LocalHost), clientServer(port, this), serverConnection(serverAddress, this)
 {
     connect(&clientServer, SIGNAL(incomingConnectionSignal(quintptr)), this, SLOT(incomingConnection(quintptr)));
     connect( &serverConnection, SIGNAL(onRegistrationReply(QString,QString)), this, SLOT(registrationReplyReceived(QString, QString)));
