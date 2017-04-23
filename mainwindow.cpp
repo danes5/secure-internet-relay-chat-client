@@ -99,6 +99,7 @@ void MainWindow::onCommunicationClicked(QListWidgetItem* item)
 
 void MainWindow::addCommunication(QString name)
 {
+    qDebug() << "main window add communication";
     texts.insert(name, "");
 }
 

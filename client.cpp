@@ -139,6 +139,7 @@ void Client::channelRequestDeclined()
 
 void Client::channelConnected(QString name)
 {
+    qDebug("CLient:: channel connected");
     emit onChannelConnected(name);
 }
 
