@@ -7,6 +7,7 @@
 #include "gcmutils.h"
 #include "parser.h"
 #include "buffer.h"
+#include "serverinfo.h"
 
 class ServerConnection : public QObject
 {
@@ -51,7 +52,9 @@ private:
     const ClientInfo& clientInfo;
     Buffer buffer;
     bool encrypted = true;
+    bool hasServerKey;
     quint64 nextId;
+    ServerInfo serverInfo;
 
 
 

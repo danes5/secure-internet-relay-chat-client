@@ -61,7 +61,7 @@ void Channel::readyRead()
            if (type == "send_message"){
                QString text = parser.get("data");
                text.prepend(otherClientName + "> ");
-               text.append("\n");
+               text.append("\r\n");
                qDebug() << "received text: " << text;
                emit onMessageReceived(text, otherClientName);
            }
@@ -76,6 +76,7 @@ void Channel::connectToHost(QString otherName, const QHostAddress &hostAddress, 
     socket->connectToHost(hostAddress, port);
     if (!socket->waitForConnected()){
         qDebug() << "could not connect to socket";
+        return;
     }
     emit onChannelConnected(otherName);
     qDebug() << "channel connect to host: " << socket->isValid();

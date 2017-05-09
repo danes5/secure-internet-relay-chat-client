@@ -123,7 +123,7 @@ void ServerConnection::readyRead()
    if (buffer.fullMessageRead()){
        QByteArray data = buffer.getData();
         Parser parser;
-       if (encrypted){
+       if (encrypted) {
            parser = Parser(gcm.decryptAndAuthorizeFull(data));
            if (! parser.verifyId(nextId)){
                // ids do not match so just discard this message
@@ -155,6 +155,11 @@ void ServerConnection::readyRead()
                emit onRegistrationReply(name, result);
            }
 
+       } else {
+           // this means that we have received a message before a secure channel was established
+           if (hasServerKey){
+
+           }
        }
     }
    buffer.reset();

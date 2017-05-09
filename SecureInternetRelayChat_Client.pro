@@ -49,7 +49,8 @@ SOURCES += main.cpp\
     serverconnection.cpp \
     clientserver.cpp \
     buffer.cpp \
-    parser.cpp
+    parser.cpp \
+    serverinfo.cpp
 
 
 
@@ -84,7 +85,8 @@ HEADERS  += mainwindow.h \
     serverconnection.h \
     clientserver.h \
     buffer.h \
-    parser.h
+    parser.h \
+    serverinfo.h
 
 
 

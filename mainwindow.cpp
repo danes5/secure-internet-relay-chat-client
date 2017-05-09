@@ -142,7 +142,7 @@ void MainWindow::clientClicked(QListWidgetItem* item)
 
 void MainWindow::messageReceived(QString text, QString otherClient)
 {
-    qDebug() << "main window message received";
+    qDebug() << "main window message received from: " << otherClient;
     texts[otherClient].append(text);
     if (communicationsList->findItems(otherClient, Qt::MatchExactly).isEmpty())
         new QListWidgetItem(otherClient, communicationsList);
@@ -187,6 +187,7 @@ void MainWindow::channelRequestDeclined()
 
 void MainWindow::channelCreated(QString name)
 {
+    qDebug() << "created channel with: " << name;
     texts.insert(name, "");
     new QListWidgetItem(name, communicationsList);
 }

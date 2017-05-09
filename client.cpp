@@ -1,7 +1,7 @@
 #include "client.h"
 #include <QNetworkInterface>
 
-Client::Client(quintptr port, QObject *parent) : QObject(parent), serverAddress(QString("192.168.0.45")),
+Client::Client(quintptr port, QObject *parent) : QObject(parent), serverAddress(QString("127.0.0.1")),
     clientServer(port, this), serverConnection(serverAddress, clientInfo, this)
 {
     foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {

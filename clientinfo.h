@@ -17,6 +17,7 @@ struct ClientInfo
 {
     // ip address of the client
     QString clientAddress;
+    QString publicKey;
     //QString clientName;
 
     // class should contain some additional info about client
