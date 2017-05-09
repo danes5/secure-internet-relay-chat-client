@@ -30,16 +30,34 @@ int rsautils::initialize(){
 QByteArray rsautils::encryptMessage(QByteArray data)
 {
     unsigned char output[256];
+    memset(output,0,256);
     quint64 length = data.length();
-
-
-
-    mbedtls_rsa_pkcs1_encrypt( &partnerPublicKey, mbedtls_ctr_drbg_random,  &ctr_drbg, MBEDTLS_RSA_PUBLIC, length, (const unsigned char *)data.constData(), output );
 
     QByteArray encrypted;
     QDataStream stream(&encrypted, QIODevice::ReadWrite);
 
-    encrypted = QByteArray((const char *)output, 256);
+    if(length < 129)
+    {
+        qDebug() << mbedtls_rsa_pkcs1_encrypt( &partnerPublicKey, mbedtls_ctr_drbg_random,  &ctr_drbg, MBEDTLS_RSA_PUBLIC, length, (const unsigned char *)data.constData(), output );
+        encrypted = QByteArray((const char *)output, 256);
+    }
+    else
+    {
+        int i;
+        for(i = 0; i < ( length - 128 ); i += 128)
+        {
+            mbedtls_rsa_pkcs1_encrypt( &partnerPublicKey, mbedtls_ctr_drbg_random,  &ctr_drbg, MBEDTLS_RSA_PUBLIC, 128, (const unsigned char *)(data.constData()+i), output );
+            encrypted += QByteArray((const char *)output, 256);
+        }
+
+        mbedtls_rsa_pkcs1_encrypt( &partnerPublicKey, mbedtls_ctr_drbg_random,  &ctr_drbg, MBEDTLS_RSA_PUBLIC, length-i, (const unsigned char *)(data.constData()+i), output );
+        encrypted += QByteArray((const char *)output, 256);
+    }
+
+
+
+
+
 
     return encrypted;
 }
@@ -49,14 +67,35 @@ QByteArray rsautils::decryptMessage(QByteArray data)
     unsigned char result[2048];
     quint64 length = data.length();
 
-    size_t i = 256;
-
-
-    mbedtls_rsa_pkcs1_decrypt( &myKeys, mbedtls_ctr_drbg_random, &ctr_drbg, MBEDTLS_RSA_PRIVATE, &i, (const unsigned char *)data.constData(), result, 2048 );
-
 
     QByteArray decrypted;
-    decrypted = QByteArray((const char *)result, i);
+    size_t ii = 256;
+
+    if(length < 257)
+    {
+        mbedtls_rsa_pkcs1_decrypt( &myKeys, mbedtls_ctr_drbg_random, &ctr_drbg, MBEDTLS_RSA_PRIVATE, &ii, (const unsigned char *)data.constData(), result, 2048 );
+        decrypted = QByteArray((const char *)result, ii);
+    }
+    else
+    {
+        int i;
+        for(i = 0; i < (length - 256); i += 256)
+        {
+            ii = 256;
+            mbedtls_rsa_pkcs1_decrypt( &myKeys, mbedtls_ctr_drbg_random, &ctr_drbg, MBEDTLS_RSA_PRIVATE, &ii, (const unsigned char *)(data.constData()+i), result, 2048 );
+            decrypted += QByteArray((const char *)result, ii);
+        }
+
+        ii = 256;
+        mbedtls_rsa_pkcs1_decrypt( &myKeys, mbedtls_ctr_drbg_random, &ctr_drbg, MBEDTLS_RSA_PRIVATE, &ii, (const unsigned char *)(data.constData()+i), result, 2048 );
+        decrypted += QByteArray((const char *)result, ii);
+    }
+
+
+
+
+
+
 
     return decrypted;
 }
