@@ -97,7 +97,7 @@ bool GcmUtils::generateGcmKey(){
 
 }
 
-void GcmUtils::setKey(unsigned char * newKey){
+bool GcmUtils::setKey(unsigned char * newKey){
     memcpy(key, newKey, keyBits);
     int result = mbedtls_gcm_setkey( &context,
                                      MBEDTLS_CIPHER_ID_AES, newKey, keyBits * 8 );
@@ -112,5 +112,10 @@ void GcmUtils::setKey(unsigned char * newKey){
 
 unsigned char * GcmUtils::getKey(){
     return key;
+}
+
+QString GcmUtils::getKey()
+{
+    return QString::fromLatin1(key, keyBits);
 }
 

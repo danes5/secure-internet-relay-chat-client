@@ -14,9 +14,9 @@ class Channel : public QObject
 {
     Q_OBJECT
 public:
-    explicit Channel(QString otherName, quintptr descriptor, QObject *parent = nullptr);
+    explicit Channel(ClientInfo otherClient, quintptr descriptor, QObject *parent = nullptr);
     //explicit Channel(QString otherName, QHostAddress hostAddress, quintptr descriptor, QObject *parent);
-    explicit Channel(QString otherName, QObject *parent = nullptr);
+    explicit Channel(ClientInfo otherClient, QObject *parent = nullptr);
     enum ChannelStates{
         RECEIVING_MESSAGE,
         RECEIVING_FILE,
@@ -25,7 +25,11 @@ public:
     };
     QString getOtherClientName();
     QByteArray encryptMessage(QString text);
+    QByteArray encryptSendAuthorizarionMessage(QString message);
+    QByteArray encryptSendSymKey(QString key);
     QJsonDocument decrypt(QByteArray array);
+    void sendAuthorizationMessage();
+    void sendSymetricKey();
 
 
 signals:
@@ -52,6 +56,9 @@ private:
 
     bool generateSymKey;
     RsaUtils rsa;
+    RsaUtils otherRsa;
+    QString authorizationMessage;
+    bool otherSideAuthorized;
 
 
 

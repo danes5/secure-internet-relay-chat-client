@@ -52,12 +52,16 @@ private:
     GcmUtils gcm;
     const ClientInfo& clientInfo;
     Buffer buffer;
-    bool encrypted = true;
+    bool encrypted;
     bool hasServerKey;
     quint64 nextId;
     ServerInfo serverInfo;
+
     bool generateSymKey;
     RsaUtils rsa;
+    RsaUtils otherRsa;
+    QString authorizationMessage;
+    bool otherSideAuthorized;
 
 
 

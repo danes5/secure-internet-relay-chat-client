@@ -8,21 +8,29 @@
     //socket->write("akafuka", 7);
 }*/
 
-ServerConnection::ServerConnection(QHostAddress serverAddress, const ClientInfo &clInfo, QObject *parent = nullptr) : QObject(parent), clientInfo(clInfo)
+ServerConnection::ServerConnection(QHostAddress serverAddress, const ClientInfo &clInfo, bool genSymKey, QObject *parent = nullptr) :
+    QObject(parent), clientInfo(clInfo), encrypted(false)
 {
     initialize();
-    socket->connectToHost(serverAddress, 5000);
+
     qDebug() << "constructor";
-    if (generateSymKey){
-        gcm.generateGcmKey();
+    gcm.generateGcmKey();
+    socket->connectToHost(serverAddress, 5000);
+    if (!socket->waitForConnected()){
+        qDebug() << "could not connect to socket";
+        return;
     }
+    sendSymKey();
+    encrypted = true;
 }
 
 QByteArray ServerConnection::encryptRegistrationRequest(QString clientName)
 {
     QJsonObject jsonObject;
     jsonObject.insert("type", "reg_req");
-    jsonObject.insert("client", clientName);
+    QJsonObject clInfoObject;
+    clientInfo.write(clInfoObject);
+    jsonObject.insert("client", clInfoObject);
     QJsonDocument jsonDoc(jsonObject);
     QByteArray array(jsonDoc.toBinaryData());
     return gcm.encryptAndTag(array);
@@ -48,6 +56,9 @@ QByteArray ServerConnection::encryptCreateChannelReply(bool reply, QString clien
     jsonObject.insert("type", "req_rep");
     jsonObject.insert("client", clientName);
     jsonObject.insert("result", reply ? "acc" : "rej");
+    QJsonObject clientInf;
+    clientInfo.write(clientInf);
+    jsonObject.insert("info", clientInf);
     QJsonDocument jsonDoc(jsonObject);
     QByteArray array(jsonDoc.toBinaryData());
     return gcm.encryptAndTag(array);
@@ -72,6 +83,25 @@ QByteArray ServerConnection::encryptClientInfo()
     return gcm.encryptAndTag(array);
 }
 
+QByteArray ServerConnection::encryptSendSymKey()
+{
+    QJsonObject jsonObject;
+    jsonObject.insert("type", "set_key");
+    jsonObject.insert("key",  gcm.getKey());
+
+    QJsonDocument jsonDoc(jsonObject);
+    QByteArray array(jsonDoc.toBinaryData());
+    return otherRsa.encryptMessage(array);
+}
+
+void ServerConnection::sendSymKey()
+{
+    socket->write(encryptSendSymKey());
+    if (!socket->waitForBytesWritten())
+        qDebug() << "cant write bytes";
+
+}
+
 void ServerConnection::socketStateChanged(QAbstractSocket::SocketState state)
 {
 
@@ -84,8 +114,6 @@ void ServerConnection::socketError(QAbstractSocket::SocketError error)
 
 void ServerConnection::initialize(){
     gcm.initialize();
-    unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
-    setkey(key);
 
     socket = new QTcpSocket();
     connect(socket, SIGNAL(connected()), this, SLOT(connected()));
@@ -97,11 +125,11 @@ void ServerConnection::initialize(){
     return gcm.generateGcmKey();
 }*/
 
-void ServerConnection::setkey(unsigned char * newKey)
+/*void ServerConnection::setkey(unsigned char * newKey)
 {
     gcm.setKey(newKey);
 
-}
+}*/
 
 /*ServerConnection::~ServerConnection()
 {
@@ -160,9 +188,7 @@ void ServerConnection::readyRead()
 
        } else {
            // this means that we have received a message before a secure channel was established
-           if (hasServerKey){
-
-           }
+           qDebug() << "server connection should never receive message not encrypted by aes";
        }
     }
    buffer.reset();

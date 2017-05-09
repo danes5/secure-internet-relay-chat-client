@@ -2,20 +2,22 @@
 #include "QDataStream"
 #include <iostream>
 
-Channel::Channel(QString otherName, quintptr descriptor, QObject *parent) : QObject(parent), otherClientName(otherName)
+Channel::Channel(ClientInfo otherClient, quintptr descriptor, bool genKey, QObject *parent) : QObject(parent),
+    otherClientName(otherName), encrypted(false), otherSideAuthorized(false), generateSymKey(genKey)
 {
     qDebug() << "initialize server channel";
     initialize();
-    otherClientName = otherName;
     socket->setSocketDescriptor(descriptor);
-    qDebug() << "before emit";
-    //emit onChannelConnected(otherName);
-    qDebug() << "after emit";
+    otherClientInfo = otherClient;
+    otherRsa.setPartnerPublicKey(otherClient.publicKey);
 }
 
-Channel::Channel(QString otherName, QObject *parent) : QObject(parent)
+Channel::Channel(ClientInfo otherClient, bool genKey, QObject *parent) : QObject(parent), encrypted(false), otherSideAuthorized(false),
+    generateSymKey(genKey)
 {
     initialize();
+    otherClientInfo = otherClient;
+    otherRsa.setPartnerPublicKey(otherClient.publicKey);
     otherClientName = otherName;
 }
 
@@ -36,21 +38,47 @@ QByteArray Channel::encryptMessage(QString text)
     return gcm.encryptAndTag(array);
 }
 
+QByteArray Channel::encryptSendAuthorizarionMessage(QString message)
+{
+    QJsonObject jsonObject;
+    jsonObject.insert("type", "auth");
+    jsonObject.insert("message", authorizationMessage);
+    QJsonDocument jsonDoc(jsonObject);
+    QByteArray array(jsonDoc.toBinaryData());
+    return otherRsa.encryptMessage(array);
+
+}
+
 QByteArray Channel::encryptSendSymKey(QString key)
 {
     QJsonObject jsonObject;
     jsonObject.insert("type", "set_key");
-    jsonObject.insert("data", key);
+    jsonObject.insert("key", key);
     QJsonDocument jsonDoc(jsonObject);
 
     QByteArray array(jsonDoc.toBinaryData());
-    return gcm.encryptAndTag(array);
+    return otherRsa.encryptMessage(array);
 
 }
 
 QJsonDocument Channel::decrypt(QByteArray array)
 {
     return gcm.decryptAndAuthorizeFull(array);
+}
+
+void Channel::sendAuthorizationMessage()
+{
+    socket->write(encryptSendAuthorizarionMessage(authorizationMessage));
+    if (!socket->waitForBytesWritten())
+        qDebug() << "cant write bytes";
+}
+
+void Channel::sendSymetricKey()
+{
+    socket->write(encryptSendSymKey(gcm.getKey()));
+    if (!socket->waitForBytesWritten())
+        qDebug() << "cant write bytes";
+    emit onChannelConnected(otherClientInfo.name);
 }
 
 
@@ -63,7 +91,7 @@ void Channel::readyRead()
    if (buffer.fullMessageRead()){
        QByteArray data = buffer.getData();
         Parser parser;
-       if (encrypted){
+       if (encrypted) {
            parser = Parser(gcm.decryptAndAuthorizeFull(data));
            if (! parser.verifyId(nextId)){
                // ids do not match so just discard this message
@@ -78,19 +106,57 @@ void Channel::readyRead()
                emit onMessageReceived(text, otherClientName);
            }
 
+       } else{
+           parser = Parser(rsa.decryptMessage(data));
+           QString type = parser.get("type");
+           if (type == "auth"){
+               if (otherSideAuthorized){
+                   qDebug() << "received authorization message after authorization !!!";
+                   return;
+               }
+               QString authMessage = parser.get("message");
+               if (authMessage != authorizationMessage){
+                   qDebug() << "authorization message differs from message received";
+                   return;
+               }
+               otherSideAuthorized = true;
+               if (generateSymKey){
+                   sendSymetricKey();
+               }
+           }
+           if (! otherSideAuthorized){
+               qDebug() << "received message while not in authorized state !!" ;
+               return;
+           }
+           if (type == "set_key"){
+               if (generateSymKey){
+                   qDebug() << "received sym key when this side generated the key";
+                   return;
+               }
+               QString key = parser.get("key");
+               bool res = gcm.setKey(key.toStdString().c_str());
+               if (!res){
+                   qDebug() << "could not set symetric key";
+               }
+               encrypted = true;
+               connected = true;
+               emit onChannelConnected(otherClientInfo.name);
+               qDebug() << "symetric key was set";
+           }
        }
    }
    buffer.reset();
 }
 
-void Channel::connectToHost(QString otherName, const QHostAddress &hostAddress, quintptr port)
+void Channel::connectToHost(quintptr port)
 {
-    socket->connectToHost(hostAddress, port);
+    socket->connectToHost(otherClientInfo.clientAddress, port);
     if (!socket->waitForConnected()){
         qDebug() << "could not connect to socket";
         return;
     }
-    emit onChannelConnected(otherName);
+    sendAuthorizationMessage();
+    //emit onChannelConnected(otherName);
     qDebug() << "channel connect to host: " << socket->isValid();
 }
 

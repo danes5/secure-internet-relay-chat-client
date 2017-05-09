@@ -16,7 +16,7 @@ struct GcmUtils
     QJsonDocument decryptAndAuthorizeBody(QByteArray array, const char* tag);
     void initialize();
     bool generateGcmKey();
-    void setKey(unsigned char * newKey);
+    bool setKey(unsigned char * newKey);
     unsigned char * getKey();
 
     bool gcmInitialized;
