@@ -8,6 +8,7 @@
 #include "parser.h"
 #include "buffer.h"
 #include "serverinfo.h"
+#include "rsautils.h"
 
 class ServerConnection : public QObject
 {
@@ -55,6 +56,8 @@ private:
     bool hasServerKey;
     quint64 nextId;
     ServerInfo serverInfo;
+    bool generateSymKey;
+    RsaUtils rsa;
 
 
 

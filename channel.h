@@ -8,6 +8,7 @@
 #include "gcmutils.h"
 #include "buffer.h"
 #include "parser.h"
+#include "rsautils.h"
 
 class Channel : public QObject
 {
@@ -47,6 +48,10 @@ private:
     quint64 nextId;
     GcmUtils gcm;
     QString otherClientName;
+    ClientInfo otherClientInfo;
+
+    bool generateSymKey;
+    RsaUtils rsa;
 
 
 

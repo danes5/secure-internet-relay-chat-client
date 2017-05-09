@@ -5,6 +5,8 @@
 #include "securityfunctions.h"
 #include <QJsonDocument>
 #include <QJsonObject>
+#include "mbedtls/entropy.h"
+#include "mbedtls/ctr_drbg.h"
 
 struct GcmUtils
 {
@@ -13,8 +15,9 @@ struct GcmUtils
     QJsonDocument decryptAndAuthorizeFull(QByteArray array);
     QJsonDocument decryptAndAuthorizeBody(QByteArray array, const char* tag);
     void initialize();
-    unsigned char * generateGcmKey();
+    bool generateGcmKey();
     void setKey(unsigned char * newKey);
+    unsigned char * getKey();
 
     bool gcmInitialized;
     bool hasGcmKey;
@@ -22,11 +25,16 @@ struct GcmUtils
     // variables used for aes encryption and decryption
     mbedtls_gcm_context context;
     static constexpr int keyBits = 32;
-    unsigned char key[keyBits];
+
     static constexpr size_t iv_len = 16;
     unsigned char iv[iv_len] = { 14, 31, 60, 126, 81, 12, 36, 102, 57, 9, 42, 51, 111, 4, 3, 25 };
 
     const size_t tag_len = 16;
+
+private:
+    mbedtls_ctr_drbg_context ctr_drbg;
+    mbedtls_entropy_context entropy;
+    unsigned char key[keyBits];
 };
 
 #endif // GCMUTILS_H

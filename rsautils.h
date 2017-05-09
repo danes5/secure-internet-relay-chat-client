@@ -12,9 +12,9 @@
 #define KEY_SIZE 2048
 #define EXPONENT 65537
 
-struct rsautils
+struct RsaUtils
 {
-    rsautils();
+    RsaUtils();
     int initialize();
     QByteArray encryptMessage(QByteArray data);
     QByteArray decryptMessage(QByteArray data);

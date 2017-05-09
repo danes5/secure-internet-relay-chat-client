@@ -13,6 +13,9 @@ ServerConnection::ServerConnection(QHostAddress serverAddress, const ClientInfo 
     initialize();
     socket->connectToHost(serverAddress, 5000);
     qDebug() << "constructor";
+    if (generateSymKey){
+        gcm.generateGcmKey();
+    }
 }
 
 QByteArray ServerConnection::encryptRegistrationRequest(QString clientName)
@@ -89,10 +92,10 @@ void ServerConnection::initialize(){
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 }
 
-unsigned char* ServerConnection::generateGcmKey()
+/*unsigned char* ServerConnection::generateGcmKey()
 {
     return gcm.generateGcmKey();
-}
+}*/
 
 void ServerConnection::setkey(unsigned char * newKey)
 {

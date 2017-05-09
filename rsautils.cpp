@@ -2,13 +2,13 @@
 #include <QDebug>
 #include <QDataStream>
 
-rsautils::rsautils()
+RsaUtils::RsaUtils()
 {
 
 }
 
 
-int rsautils::initialize(){
+int RsaUtils::initialize(){
     int ret = 0;
 
     mbedtls_entropy_init( &entropy );
@@ -25,7 +25,7 @@ int rsautils::initialize(){
      }
 }
 
-QByteArray rsautils::encryptMessage(QByteArray data)
+QByteArray RsaUtils::encryptMessage(QByteArray data)
 {
     unsigned char output[256];
     quint64 length = data.length();
@@ -42,7 +42,7 @@ QByteArray rsautils::encryptMessage(QByteArray data)
     return encrypted;
 }
 
-QByteArray rsautils::decryptMessage(QByteArray data)
+QByteArray RsaUtils::decryptMessage(QByteArray data)
 {
     unsigned char result[2048];
     quint64 length = data.length();
@@ -59,7 +59,7 @@ QByteArray rsautils::decryptMessage(QByteArray data)
     return encrypted;
 }
 
-QJsonDocument rsautils::getPKey()
+QJsonDocument RsaUtils::getPKey()
 {
     QJsonObject jsonObject;
     char tmp[2048];
@@ -74,7 +74,7 @@ QJsonDocument rsautils::getPKey()
     return jsonDoc;
 }
 
-void rsautils::setPKey(QJsonDocument key)
+void RsaUtils::setPKey(QJsonDocument key)
 {
     QJsonObject jsonObject = key.object();
     mbedtls_mpi_read_string(&context.N,16,jsonObject.take("N").toString().toStdString().c_str());

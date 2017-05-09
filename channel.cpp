@@ -36,6 +36,18 @@ QByteArray Channel::encryptMessage(QString text)
     return gcm.encryptAndTag(array);
 }
 
+QByteArray Channel::encryptSendSymKey(QString key)
+{
+    QJsonObject jsonObject;
+    jsonObject.insert("type", "set_key");
+    jsonObject.insert("data", key);
+    QJsonDocument jsonDoc(jsonObject);
+
+    QByteArray array(jsonDoc.toBinaryData());
+    return gcm.encryptAndTag(array);
+
+}
+
 QJsonDocument Channel::decrypt(QByteArray array)
 {
     return gcm.decryptAndAuthorizeFull(array);
@@ -101,16 +113,18 @@ void Channel::sendFile(QByteArray data)
 
 void Channel::initialize(){
     gcm.initialize();
-    unsigned char key[32] = { 'o', 'a', 'b', 's', 'w', 'o', 'e', 'd', 'v', 'h', 'q', 'm', 'z', 'g', 'a', 'u','y','q','g','l','5','`','1','Z','q','H','7','F','f','b','n',' '};
-    setkey(key);
+
+    if (generateSymKey){
+        gcm.generateGcmKey();
+    }
     socket = new QTcpSocket();
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 }
 
-unsigned char* Channel::generateGcmKey()
+/*unsigned char* Channel::generateGcmKey()
 {
     return gcm.generateGcmKey();
-}
+}*/
 
 void Channel::setkey(unsigned char * newKey)
 {

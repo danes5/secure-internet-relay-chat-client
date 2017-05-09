@@ -73,16 +73,44 @@ void GcmUtils::initialize(){
 
 }
 
-unsigned char * GcmUtils::generateGcmKey(){
-    unsigned char* newKey = new unsigned char[keyBits]();
+bool GcmUtils::generateGcmKey(){
+    mbedtls_entropy_init( &entropy );
 
-    //qDebug() << "generate key:" << result;
-    return newKey;
+    mbedtls_ctr_drbg_init( &ctr_drbg );
+    int ret;
+
+    char *pers = "aes generate key";
+
+    if( ( ret = mbedtls_ctr_drbg_seed( &ctr_drbg, mbedtls_entropy_func, &entropy,
+        (unsigned char *) pers, strlen( pers ) ) ) != 0 )
+    {
+        printf( " failed\n ! mbedtls_ctr_drbg_init returned -0x%04x\n", -ret );
+        return false;
+    }
+
+    if( ( ret = mbedtls_ctr_drbg_random( &ctr_drbg, key, 32 ) ) != 0 )
+    {
+        printf( " failed\n ! mbedtls_ctr_drbg_random returned -0x%04x\n", -ret );
+        return false;
+    }
+    return true;
+
 }
 
 void GcmUtils::setKey(unsigned char * newKey){
     memcpy(key, newKey, keyBits);
     int result = mbedtls_gcm_setkey( &context,
                                      MBEDTLS_CIPHER_ID_AES, newKey, keyBits * 8 );
+    if (result != 0){
+        printf( " failed\n ! mbedtls_ctr_drbg_random returned -0x%04x\n", -ret );
+        return false;
+    }
+    return true;
+
     //qDebug() << "result" << result;
 }
+
+unsigned char * GcmUtils::getKey(){
+    return key;
+}
+
