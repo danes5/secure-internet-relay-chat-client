@@ -18,14 +18,16 @@ struct rsautils
     int initialize();
     QByteArray encryptMessage(QByteArray data);
     QByteArray decryptMessage(QByteArray data);
-    QJsonDocument getPKey();
-    void setPKey(QJsonDocument key);
+    QJsonDocument getMyPublicKey();
+    QJsonDocument getPartnerPublicKey();
+    void setPartnerPublicKey(QJsonDocument key);
 
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
     char *pers = "asjkcbnsajhcbsjhcbash";
 
-    mbedtls_rsa_context context;
+    mbedtls_rsa_context myKeys;
+    mbedtls_rsa_context partnerPublicKey;
 
 };
 
