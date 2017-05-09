@@ -11,16 +11,25 @@
 
 #define KEY_SIZE 2048
 #define EXPONENT 65537
+#define ERR_OPEN_FILE 1
+#define ERR_READ_FILE 1
 
 struct rsautils
 {
     rsautils();
     int initialize();
-    QByteArray encryptMessage(QByteArray data);
-    QByteArray decryptMessage(QByteArray data);
+
+    int setMyKey();
+    int setMyKeyFromFile(QString path);
+    void setPartnerPublicKey(QJsonDocument key);
+    int setPartnerPublicKeyFromFile(QString path);
+
     QJsonDocument getMyPublicKey();
     QJsonDocument getPartnerPublicKey();
-    void setPartnerPublicKey(QJsonDocument key);
+
+    QByteArray encryptMessage(QByteArray data);
+    QByteArray decryptMessage(QByteArray data);
+
 
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
