@@ -91,6 +91,16 @@ QByteArray ServerConnection::encryptSendSymKey()
     return otherRsa.encryptMessage(array);
 }
 
+QByteArray ServerConnection::encryptSendQuit()
+{
+    QJsonObject jsonObject;
+    jsonObject.insert("type", "quit");
+    QJsonDocument jsonDoc(jsonObject);
+    QByteArray array(jsonDoc.toBinaryData());
+    return gcm.encryptAndTag(array);
+
+}
+
 void ServerConnection::sendSymKey()
 {
     socket->write(encryptSendSymKey());
@@ -130,7 +140,7 @@ bool ServerConnection::initialize(){
         return false;
     }
 
-    socket = new QTcpSocket();
+    socket = new QTcpSocket(this);
     connect(socket, SIGNAL(connected()), this, SLOT(connected()));
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
     return true;
@@ -245,4 +255,14 @@ void ServerConnection::sendGetActiveClientsRequest()
     socket->write(encryptGetActiveClientsRequest());
     if (!socket->waitForBytesWritten())
         qDebug() << "cant write bytes";
+}
+
+void ServerConnection::sendQuit()
+{
+    if (! encrypted)
+        return;
+    socket->write(encryptSendQuit());
+    if (!socket->waitForBytesWritten())
+        qDebug() << "cant write bytes";
+
 }

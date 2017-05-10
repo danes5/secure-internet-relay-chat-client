@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <iostream>
+#include <QApplication>
 
 MainWindow::MainWindow(Client *cl, QWidget *parent) :
     QMainWindow(parent),
@@ -50,8 +51,11 @@ MainWindow::MainWindow(Client *cl, QWidget *parent) :
     connect(enterNameButton, SIGNAL(pressed()), this, SLOT(onLoginButtonClicked()));
     connect(startCommunicationButton, SIGNAL(pressed()), this, SLOT(onStartCommunicationClicked()));
     connect(this, SIGNAL(forwardRegisterToServer(QString)), client, SLOT(registerToServer(QString)));
-    QObject::connect(quitButton, SIGNAL(clicked()),
-                     QApplication::instance(), SLOT(quit()));
+    connect(quitButton, SIGNAL(clicked()),
+                     this, SLOT(quitPressed()));
+    connect(client, SIGNAL(quit()), this, SIGNAL(quit()));
+    QObject::connect(this, SIGNAL(quit()), QApplication::instance(), SLOT(quit()));
+    connect(this, SIGNAL(onQuitPressed()), client, SLOT(quitPressed()));
     connect(client, SIGNAL(onRegistrationSuccessful()), this, SLOT(hideLoginUI()));
     connect(client, SIGNAL(onRegistrationFailed(QString)), this, SLOT(showLoginError(QString)));
     connect(client, SIGNAL(onMessageReceivedSignal(QString,QString)), this, SLOT(messageReceived(QString, QString)));
@@ -190,6 +194,12 @@ void MainWindow::channelCreated(QString name)
     qDebug() << "created channel with: " << name;
     texts.insert(name, "");
     new QListWidgetItem(name, communicationsList);
+}
+
+void MainWindow::quitPressed()
+{
+    emit onQuitPressed();
+
 }
 
 void MainWindow::hideLoginUI()

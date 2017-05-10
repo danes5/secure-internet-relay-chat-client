@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[33];
-    char stringdata0[548];
+    QByteArrayData data[36];
+    char stringdata0[579];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -43,27 +43,30 @@ QT_MOC_LITERAL(8, 111, 4), // "name"
 QT_MOC_LITERAL(9, 116, 22), // "onRefreshButtonPressed"
 QT_MOC_LITERAL(10, 139, 24), // "onChannelRequestAccepted"
 QT_MOC_LITERAL(11, 164, 24), // "onChannelRequestDeclined"
-QT_MOC_LITERAL(12, 189, 19), // "updateActiveClients"
-QT_MOC_LITERAL(13, 209, 7), // "clients"
-QT_MOC_LITERAL(14, 217, 22), // "onCommunicationClicked"
-QT_MOC_LITERAL(15, 240, 16), // "QListWidgetItem*"
-QT_MOC_LITERAL(16, 257, 4), // "item"
-QT_MOC_LITERAL(17, 262, 16), // "addCommunication"
-QT_MOC_LITERAL(18, 279, 19), // "removeCommunication"
-QT_MOC_LITERAL(19, 299, 24), // "sendMessageButtonPressed"
-QT_MOC_LITERAL(20, 324, 27), // "onStartCommunicationClicked"
-QT_MOC_LITERAL(21, 352, 20), // "onLoginButtonClicked"
-QT_MOC_LITERAL(22, 373, 11), // "hideLoginUI"
-QT_MOC_LITERAL(23, 385, 14), // "showLoginError"
-QT_MOC_LITERAL(24, 400, 7), // "message"
-QT_MOC_LITERAL(25, 408, 13), // "clientClicked"
-QT_MOC_LITERAL(26, 422, 15), // "messageReceived"
-QT_MOC_LITERAL(27, 438, 11), // "otherClient"
-QT_MOC_LITERAL(28, 450, 20), // "refreshButtonPressed"
-QT_MOC_LITERAL(29, 471, 15), // "requestReceived"
-QT_MOC_LITERAL(30, 487, 22), // "channelRequestAccepted"
-QT_MOC_LITERAL(31, 510, 22), // "channelRequestDeclined"
-QT_MOC_LITERAL(32, 533, 14) // "channelCreated"
+QT_MOC_LITERAL(12, 189, 13), // "onQuitPressed"
+QT_MOC_LITERAL(13, 203, 4), // "quit"
+QT_MOC_LITERAL(14, 208, 19), // "updateActiveClients"
+QT_MOC_LITERAL(15, 228, 7), // "clients"
+QT_MOC_LITERAL(16, 236, 22), // "onCommunicationClicked"
+QT_MOC_LITERAL(17, 259, 16), // "QListWidgetItem*"
+QT_MOC_LITERAL(18, 276, 4), // "item"
+QT_MOC_LITERAL(19, 281, 16), // "addCommunication"
+QT_MOC_LITERAL(20, 298, 19), // "removeCommunication"
+QT_MOC_LITERAL(21, 318, 24), // "sendMessageButtonPressed"
+QT_MOC_LITERAL(22, 343, 27), // "onStartCommunicationClicked"
+QT_MOC_LITERAL(23, 371, 20), // "onLoginButtonClicked"
+QT_MOC_LITERAL(24, 392, 11), // "hideLoginUI"
+QT_MOC_LITERAL(25, 404, 14), // "showLoginError"
+QT_MOC_LITERAL(26, 419, 7), // "message"
+QT_MOC_LITERAL(27, 427, 13), // "clientClicked"
+QT_MOC_LITERAL(28, 441, 15), // "messageReceived"
+QT_MOC_LITERAL(29, 457, 11), // "otherClient"
+QT_MOC_LITERAL(30, 469, 20), // "refreshButtonPressed"
+QT_MOC_LITERAL(31, 490, 15), // "requestReceived"
+QT_MOC_LITERAL(32, 506, 22), // "channelRequestAccepted"
+QT_MOC_LITERAL(33, 529, 22), // "channelRequestDeclined"
+QT_MOC_LITERAL(34, 552, 14), // "channelCreated"
+QT_MOC_LITERAL(35, 567, 11) // "quitPressed"
 
     },
     "MainWindow\0forwardSendMessage\0\0"
@@ -71,17 +74,18 @@ QT_MOC_LITERAL(32, 533, 14) // "channelCreated"
     "clientName\0forwardRegisterToServer\0"
     "name\0onRefreshButtonPressed\0"
     "onChannelRequestAccepted\0"
-    "onChannelRequestDeclined\0updateActiveClients\0"
-    "clients\0onCommunicationClicked\0"
-    "QListWidgetItem*\0item\0addCommunication\0"
-    "removeCommunication\0sendMessageButtonPressed\0"
+    "onChannelRequestDeclined\0onQuitPressed\0"
+    "quit\0updateActiveClients\0clients\0"
+    "onCommunicationClicked\0QListWidgetItem*\0"
+    "item\0addCommunication\0removeCommunication\0"
+    "sendMessageButtonPressed\0"
     "onStartCommunicationClicked\0"
     "onLoginButtonClicked\0hideLoginUI\0"
     "showLoginError\0message\0clientClicked\0"
     "messageReceived\0otherClient\0"
     "refreshButtonPressed\0requestReceived\0"
     "channelRequestAccepted\0channelRequestDeclined\0"
-    "channelCreated"
+    "channelCreated\0quitPressed"
 };
 #undef QT_MOC_LITERAL
 
@@ -91,38 +95,41 @@ static const uint qt_meta_data_MainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      22,   14, // methods
+      25,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       6,       // signalCount
+       8,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    2,  124,    2, 0x06 /* Public */,
-       5,    1,  129,    2, 0x06 /* Public */,
-       7,    1,  132,    2, 0x06 /* Public */,
-       9,    0,  135,    2, 0x06 /* Public */,
-      10,    0,  136,    2, 0x06 /* Public */,
-      11,    0,  137,    2, 0x06 /* Public */,
+       1,    2,  139,    2, 0x06 /* Public */,
+       5,    1,  144,    2, 0x06 /* Public */,
+       7,    1,  147,    2, 0x06 /* Public */,
+       9,    0,  150,    2, 0x06 /* Public */,
+      10,    0,  151,    2, 0x06 /* Public */,
+      11,    0,  152,    2, 0x06 /* Public */,
+      12,    0,  153,    2, 0x06 /* Public */,
+      13,    0,  154,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-      12,    1,  138,    2, 0x0a /* Public */,
-      14,    1,  141,    2, 0x0a /* Public */,
-      17,    1,  144,    2, 0x0a /* Public */,
-      18,    1,  147,    2, 0x0a /* Public */,
-      19,    0,  150,    2, 0x0a /* Public */,
-      20,    0,  151,    2, 0x0a /* Public */,
-      21,    0,  152,    2, 0x0a /* Public */,
-      22,    0,  153,    2, 0x0a /* Public */,
-      23,    1,  154,    2, 0x0a /* Public */,
-      25,    1,  157,    2, 0x0a /* Public */,
-      26,    2,  160,    2, 0x0a /* Public */,
-      28,    0,  165,    2, 0x0a /* Public */,
-      29,    1,  166,    2, 0x0a /* Public */,
-      30,    0,  169,    2, 0x0a /* Public */,
-      31,    0,  170,    2, 0x0a /* Public */,
-      32,    1,  171,    2, 0x0a /* Public */,
+      14,    1,  155,    2, 0x0a /* Public */,
+      16,    1,  158,    2, 0x0a /* Public */,
+      19,    1,  161,    2, 0x0a /* Public */,
+      20,    1,  164,    2, 0x0a /* Public */,
+      21,    0,  167,    2, 0x0a /* Public */,
+      22,    0,  168,    2, 0x0a /* Public */,
+      23,    0,  169,    2, 0x0a /* Public */,
+      24,    0,  170,    2, 0x0a /* Public */,
+      25,    1,  171,    2, 0x0a /* Public */,
+      27,    1,  174,    2, 0x0a /* Public */,
+      28,    2,  177,    2, 0x0a /* Public */,
+      30,    0,  182,    2, 0x0a /* Public */,
+      31,    1,  183,    2, 0x0a /* Public */,
+      32,    0,  186,    2, 0x0a /* Public */,
+      33,    0,  187,    2, 0x0a /* Public */,
+      34,    1,  188,    2, 0x0a /* Public */,
+      35,    0,  191,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::QString, QMetaType::QString,    3,    4,
@@ -131,24 +138,27 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
 
  // slots: parameters
-    QMetaType::Void, QMetaType::QJsonArray,   13,
-    QMetaType::Void, 0x80000000 | 15,   16,
+    QMetaType::Void, QMetaType::QJsonArray,   15,
+    QMetaType::Void, 0x80000000 | 17,   18,
     QMetaType::Void, QMetaType::QString,    8,
     QMetaType::Void, QMetaType::QString,    8,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::QString,   24,
-    QMetaType::Void, 0x80000000 | 15,   16,
-    QMetaType::Void, QMetaType::QString, QMetaType::QString,    4,   27,
+    QMetaType::Void, QMetaType::QString,   26,
+    QMetaType::Void, 0x80000000 | 17,   18,
+    QMetaType::Void, QMetaType::QString, QMetaType::QString,    4,   29,
     QMetaType::Void,
     QMetaType::Void, QMetaType::QString,    8,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, QMetaType::QString,    8,
+    QMetaType::Void,
 
        0        // eod
 };
@@ -165,22 +175,25 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 3: _t->onRefreshButtonPressed(); break;
         case 4: _t->onChannelRequestAccepted(); break;
         case 5: _t->onChannelRequestDeclined(); break;
-        case 6: _t->updateActiveClients((*reinterpret_cast< QJsonArray(*)>(_a[1]))); break;
-        case 7: _t->onCommunicationClicked((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
-        case 8: _t->addCommunication((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 9: _t->removeCommunication((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 10: _t->sendMessageButtonPressed(); break;
-        case 11: _t->onStartCommunicationClicked(); break;
-        case 12: _t->onLoginButtonClicked(); break;
-        case 13: _t->hideLoginUI(); break;
-        case 14: _t->showLoginError((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 15: _t->clientClicked((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
-        case 16: _t->messageReceived((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
-        case 17: _t->refreshButtonPressed(); break;
-        case 18: _t->requestReceived((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 19: _t->channelRequestAccepted(); break;
-        case 20: _t->channelRequestDeclined(); break;
-        case 21: _t->channelCreated((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 6: _t->onQuitPressed(); break;
+        case 7: _t->quit(); break;
+        case 8: _t->updateActiveClients((*reinterpret_cast< QJsonArray(*)>(_a[1]))); break;
+        case 9: _t->onCommunicationClicked((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
+        case 10: _t->addCommunication((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 11: _t->removeCommunication((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 12: _t->sendMessageButtonPressed(); break;
+        case 13: _t->onStartCommunicationClicked(); break;
+        case 14: _t->onLoginButtonClicked(); break;
+        case 15: _t->hideLoginUI(); break;
+        case 16: _t->showLoginError((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 17: _t->clientClicked((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
+        case 18: _t->messageReceived((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
+        case 19: _t->refreshButtonPressed(); break;
+        case 20: _t->requestReceived((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 21: _t->channelRequestAccepted(); break;
+        case 22: _t->channelRequestDeclined(); break;
+        case 23: _t->channelCreated((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 24: _t->quitPressed(); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -228,6 +241,20 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
                 return;
             }
         }
+        {
+            typedef void (MainWindow::*_t)();
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&MainWindow::onQuitPressed)) {
+                *result = 6;
+                return;
+            }
+        }
+        {
+            typedef void (MainWindow::*_t)();
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&MainWindow::quit)) {
+                *result = 7;
+                return;
+            }
+        }
     }
 }
 
@@ -256,13 +283,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 22)
+        if (_id < 25)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 22;
+        _id -= 25;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 22)
+        if (_id < 25)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 22;
+        _id -= 25;
     }
     return _id;
 }
@@ -304,6 +331,18 @@ void MainWindow::onChannelRequestAccepted()
 void MainWindow::onChannelRequestDeclined()
 {
     QMetaObject::activate(this, &staticMetaObject, 5, Q_NULLPTR);
+}
+
+// SIGNAL 6
+void MainWindow::onQuitPressed()
+{
+    QMetaObject::activate(this, &staticMetaObject, 6, Q_NULLPTR);
+}
+
+// SIGNAL 7
+void MainWindow::quit()
+{
+    QMetaObject::activate(this, &staticMetaObject, 7, Q_NULLPTR);
 }
 QT_WARNING_POP
 QT_END_MOC_NAMESPACE

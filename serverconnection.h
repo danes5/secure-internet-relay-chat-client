@@ -23,6 +23,7 @@ public:
     QByteArray encryptGetActiveClientsRequest();
     QByteArray encryptClientInfo();
     QByteArray encryptSendSymKey();
+    QByteArray encryptSendQuit();
 
     const QString serverPubKeyPath = "rsa_pub.txt";
 
@@ -31,6 +32,7 @@ public:
     void sendCreateChannelRequest(QString clientName);
     void sendCreateChannelReply(bool reply, QString clientName, int id);
     void sendGetActiveClientsRequest();
+    void sendQuit();
 
 
 

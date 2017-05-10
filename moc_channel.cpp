@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Channel_t {
-    QByteArrayData data[13];
-    char stringdata0[128];
+    QByteArrayData data[12];
+    char stringdata0[109];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -36,20 +36,19 @@ QT_MOC_LITERAL(1, 8, 17), // "onMessageReceived"
 QT_MOC_LITERAL(2, 26, 0), // ""
 QT_MOC_LITERAL(3, 27, 4), // "text"
 QT_MOC_LITERAL(4, 32, 11), // "otherClient"
-QT_MOC_LITERAL(5, 44, 18), // "onChannelConnected"
-QT_MOC_LITERAL(6, 63, 4), // "name"
-QT_MOC_LITERAL(7, 68, 15), // "onChannelActive"
-QT_MOC_LITERAL(8, 84, 11), // "sendMessage"
-QT_MOC_LITERAL(9, 96, 7), // "message"
-QT_MOC_LITERAL(10, 104, 8), // "sendFile"
-QT_MOC_LITERAL(11, 113, 4), // "data"
-QT_MOC_LITERAL(12, 118, 9) // "readyRead"
+QT_MOC_LITERAL(5, 44, 15), // "onChannelActive"
+QT_MOC_LITERAL(6, 60, 4), // "name"
+QT_MOC_LITERAL(7, 65, 11), // "sendMessage"
+QT_MOC_LITERAL(8, 77, 7), // "message"
+QT_MOC_LITERAL(9, 85, 8), // "sendFile"
+QT_MOC_LITERAL(10, 94, 4), // "data"
+QT_MOC_LITERAL(11, 99, 9) // "readyRead"
 
     },
     "Channel\0onMessageReceived\0\0text\0"
-    "otherClient\0onChannelConnected\0name\0"
-    "onChannelActive\0sendMessage\0message\0"
-    "sendFile\0data\0readyRead"
+    "otherClient\0onChannelActive\0name\0"
+    "sendMessage\0message\0sendFile\0data\0"
+    "readyRead"
 };
 #undef QT_MOC_LITERAL
 
@@ -59,31 +58,29 @@ static const uint qt_meta_data_Channel[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       6,   14, // methods
+       5,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       3,       // signalCount
+       2,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    2,   44,    2, 0x06 /* Public */,
-       5,    1,   49,    2, 0x06 /* Public */,
-       7,    1,   52,    2, 0x06 /* Public */,
+       1,    2,   39,    2, 0x06 /* Public */,
+       5,    1,   44,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       8,    1,   55,    2, 0x0a /* Public */,
-      10,    1,   58,    2, 0x0a /* Public */,
-      12,    0,   61,    2, 0x0a /* Public */,
+       7,    1,   47,    2, 0x0a /* Public */,
+       9,    1,   50,    2, 0x0a /* Public */,
+      11,    0,   53,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::QString, QMetaType::QString,    3,    4,
     QMetaType::Void, QMetaType::QString,    6,
-    QMetaType::Void, QMetaType::QString,    6,
 
  // slots: parameters
-    QMetaType::Void, QMetaType::QString,    9,
-    QMetaType::Void, QMetaType::QByteArray,   11,
+    QMetaType::Void, QMetaType::QString,    8,
+    QMetaType::Void, QMetaType::QByteArray,   10,
     QMetaType::Void,
 
        0        // eod
@@ -96,11 +93,10 @@ void Channel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->onMessageReceived((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
-        case 1: _t->onChannelConnected((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 2: _t->onChannelActive((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 3: _t->sendMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 4: _t->sendFile((*reinterpret_cast< QByteArray(*)>(_a[1]))); break;
-        case 5: _t->readyRead(); break;
+        case 1: _t->onChannelActive((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 2: _t->sendMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 3: _t->sendFile((*reinterpret_cast< QByteArray(*)>(_a[1]))); break;
+        case 4: _t->readyRead(); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -115,15 +111,8 @@ void Channel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
         }
         {
             typedef void (Channel::*_t)(QString );
-            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&Channel::onChannelConnected)) {
-                *result = 1;
-                return;
-            }
-        }
-        {
-            typedef void (Channel::*_t)(QString );
             if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&Channel::onChannelActive)) {
-                *result = 2;
+                *result = 1;
                 return;
             }
         }
@@ -155,13 +144,13 @@ int Channel::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 6)
+        if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 6;
+        _id -= 5;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 6)
+        if (_id < 5)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 6;
+        _id -= 5;
     }
     return _id;
 }
@@ -174,17 +163,10 @@ void Channel::onMessageReceived(QString _t1, QString _t2)
 }
 
 // SIGNAL 1
-void Channel::onChannelConnected(QString _t1)
-{
-    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
-    QMetaObject::activate(this, &staticMetaObject, 1, _a);
-}
-
-// SIGNAL 2
 void Channel::onChannelActive(QString _t1)
 {
     void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
-    QMetaObject::activate(this, &staticMetaObject, 2, _a);
+    QMetaObject::activate(this, &staticMetaObject, 1, _a);
 }
 QT_WARNING_POP
 QT_END_MOC_NAMESPACE

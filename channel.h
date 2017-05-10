@@ -35,7 +35,7 @@ public:
 
 signals:
     void onMessageReceived(QString text, QString otherClient);
-    void onChannelConnected(QString name);
+    //void onChannelConnected(QString name);
     void onChannelActive(QString name);
 
 public slots:

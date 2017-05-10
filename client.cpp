@@ -1,5 +1,6 @@
 #include "client.h"
 #include <QNetworkInterface>
+#include <QApplication>
 
 Client::Client(quintptr port, QObject *parent) : QObject(parent), serverAddress(QString("127.0.0.1")),
     clientServer(port, this), serverConnection(serverAddress, clientInfo, rsa, this), nextId(2)
@@ -188,6 +189,12 @@ void Client::receiveCreateChannelReply(ClientInfo info, bool result, int id)
     activeChannels.push_back(channel);
 }
 
+void Client::quitPressed()
+{
+    serverConnection.sendQuit();
+    emit quit();
+}
+
 /*void Client::socketStateChanged(QAbstractSocket::SocketState state)
 {
 
@@ -234,9 +241,9 @@ bool Client::initialize()
         return false;
     }
     clientInfo.publicKey = rsa.getMyPublicKey();
-    qDebug() << "public key: " << clientInfo.publicKey;
-    QJsonObject obj(clientInfo.publicKey.object());
-    qDebug() << obj;
+    //qDebug() << "public key: " << clientInfo.publicKey;
+    //QJsonObject obj(clientInfo.publicKey.object());
+    //qDebug() << obj;
     return true;
 }
 

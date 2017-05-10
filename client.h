@@ -31,6 +31,7 @@ signals:
     void onMessageReceivedSignal(QString text, QString otherClient);
     void onChannelRequestReceived(QString name);
     void onChannelActive(QString name);
+    void quit();
 
 
 public slots:
@@ -76,6 +77,8 @@ public slots:
      * @brief receiveCreateChannelReply receive reply from other client for request for communication
      */
     void receiveCreateChannelReply(ClientInfo info, bool result, int id);
+
+    void quitPressed();
 
 
 

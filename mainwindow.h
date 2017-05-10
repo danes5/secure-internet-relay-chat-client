@@ -42,6 +42,8 @@ public slots:
     void channelRequestAccepted();
     void channelRequestDeclined();
     void channelCreated(QString name);
+    void quitPressed();
+
 
 signals:
     void forwardSendMessage(QString communication, QString text);
@@ -50,6 +52,8 @@ signals:
     void onRefreshButtonPressed();
     void onChannelRequestAccepted();
     void onChannelRequestDeclined();
+    void onQuitPressed();
+    void quit();
 
 
 private:

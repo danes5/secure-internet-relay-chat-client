@@ -79,7 +79,7 @@ void Channel::sendSymetricKey()
     socket->write(encryptSendSymKey(gcm.getKey()));
     if (!socket->waitForBytesWritten())
         qDebug() << "cant write bytes";
-    emit onChannelConnected(otherClientInfo.name);
+    //emit onChannelConnected(otherClientInfo.name);
 }
 
 void Channel::sendId(int id)
@@ -117,6 +117,7 @@ void Channel::readyRead()
    if (buffer.fullMessageRead()) {
        //qDebug() << "message read full";
        QByteArray data = buffer.getData();
+       buffer.reset();
         Parser parser;
         if (!hasInfo) {
             //qDebug() << "should receive id";
@@ -153,6 +154,7 @@ void Channel::readyRead()
             //encrypted = true;
             //connected = true;
             //emit onChannelActive(otherClientInfo.name);
+            return;
 
         }
        if (encrypted) {
@@ -210,17 +212,19 @@ void Channel::readyRead()
                    return;
                }
                QString key = parser.get("key");
-               bool res = gcm.setKey((unsigned char *)key.toStdString().c_str());
+               qDebug() << "received string key: " << key;
+               bool res = gcm.setKey((unsigned char *)key.toLatin1().data());
                if (!res){
                    qDebug() << "could not set symetric key";
                }
+               qDebug() << "channel received key: " << gcm.getKey();
                encrypted = true;
                connected = true;
-               emit onChannelConnected(otherClientInfo.name);
+               emit onChannelActive(otherClientInfo.name);
                qDebug() << "symetric key was set";
+               return;
            }
        }
-       buffer.reset();
    }
    qDebug() << "incomplete message, rest will be send in next packet, length: " << buffer.getLength();
 
@@ -261,11 +265,12 @@ void Channel::initialize(){
     if (generateSymKey){
         gcm.generateGcmKey();
     }
+    qDebug() << "channel generated key: " << gcm.getKey();
     int ret = otherRsa.initialize();
     if (ret != 0){
         qDebug() << "could not initialize other rsa:  " << ret;
     }
-    socket = new QTcpSocket();
+    socket = new QTcpSocket(this);
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 }
 
