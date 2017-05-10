@@ -156,6 +156,7 @@ void ServerConnection::connectToServer(QString serverAddress, quint16 port)
     }
     QSslCertificate serverCert(&serverCertFile, QSsl::Pem);
     socket->addCaCertificate(serverCert);
+    socket->setPeerVerifyMode(QSslSocket::VerifyNone);
 
     socket->connectToHostEncrypted(serverAddress, port);
 
