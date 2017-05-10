@@ -2,7 +2,7 @@
 #include <QNetworkInterface>
 #include <QApplication>
 
-Client::Client(QObject *parent) : QObject(parent), serverAddress(QString("192.168.3.221")), port(5000),
+Client::Client(QObject *parent) : QObject(parent), serverAddress(QString("127.0.0.1")), port(5000),
     clientServer(port, this), serverConnection(clientInfo, rsa, this), nextId(2)
 {
     if (!initialize()){

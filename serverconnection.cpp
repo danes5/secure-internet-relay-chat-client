@@ -98,16 +98,20 @@ void ServerConnection::sendSymKey()
 void ServerConnection::socketStateChanged(QAbstractSocket::SocketState state)
 {
 
+    qDebug() << "state changed: " << state;
 }
 
 void ServerConnection::socketError(QAbstractSocket::SocketError error)
 {
+    qDebug() << "socket error: " << error;
 
 }
 
 void ServerConnection::sslErrors(QList<QSslError> errors)
 {
-
+    for(auto& error : errors){
+        qDebug() << "ssl error: " << error;
+    }
 }
 
 bool ServerConnection::initialize(){
@@ -143,9 +147,9 @@ bool ServerConnection::initialize(){
 
 void ServerConnection::connectToServer(QString serverAddress, quint16 port)
 {
-    socket->setProtocol(QSsl::SslV3);
+    socket->setProtocol(QSsl::TlsV1SslV3);
 
-    QFile serverCertFile("server.crs");
+    QFile serverCertFile("server.csr");
     if (! serverCertFile.open(QIODevice::ReadOnly)){
         qDebug() << "could not open certificate file";
         return;
@@ -181,7 +185,7 @@ void ServerConnection::connectToServer(QString serverAddress, quint16 port)
 
 void ServerConnection::connected()
 {
-    qDebug() << "connected";
+    //qDebug() << "connected";
 }
 
 void ServerConnection::readyRead()
