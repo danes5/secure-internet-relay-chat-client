@@ -112,12 +112,8 @@ bool GcmUtils::setKey(unsigned char * newKey){
     }
     return true;
 
-    //qDebug() << "result" << result;
 }
 
-/*unsigned char * GcmUtils::getKey(){
-    return key;
-}*/
 
 QString GcmUtils::getKey()
 {

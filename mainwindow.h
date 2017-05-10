@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include "client.h"
-#include "clientslistmodel.h"
 #include <QTextBrowser>
 #include <QListView>
 #include <QColumnView>

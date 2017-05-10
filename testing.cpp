@@ -16,7 +16,6 @@
 
 #include "securityfunctions.h"
 #include "client.h"
-#include "clientslistmodel.h"
 #include "channel.h"
 
 /*Client client;

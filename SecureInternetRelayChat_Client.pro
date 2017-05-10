@@ -30,7 +30,6 @@ SOURCES += main.cpp\
     client.cpp \
     channel.cpp \
     clientinfo.cpp \
-    clientslistmodel.cpp \
     testing.cpp \
     securityfunctions.cpp \
     libs/aes.c \
@@ -69,7 +68,6 @@ SOURCES += main.cpp\
     clientserver.cpp \
     buffer.cpp \
     parser.cpp \
-    serverinfo.cpp \
 
 
 
@@ -79,7 +77,6 @@ HEADERS  += mainwindow.h \
     client.h \
     channel.h \
     clientinfo.h \
-    clientslistmodel.h \
     securityfunctions.h \
     libs/cipher_internal.h \
     libs/aes.h \
@@ -124,7 +121,6 @@ HEADERS  += mainwindow.h \
     clientserver.h \
     buffer.h \
     parser.h \
-    serverinfo.h \
 
 
 

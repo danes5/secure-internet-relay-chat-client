@@ -2,8 +2,8 @@
 #include <QNetworkInterface>
 #include <QApplication>
 
-Client::Client(quintptr port, QObject *parent) : QObject(parent), serverAddress(QString("127.0.0.1")),
-    clientServer(port, this), serverConnection(serverAddress, clientInfo, rsa, this), nextId(2)
+Client::Client(QObject *parent) : QObject(parent), serverAddress(QString("192.168.3.221")), port(5000),
+    clientServer(port, this), serverConnection(clientInfo, rsa, this), nextId(2)
 {
     if (!initialize()){
         qDebug() << "could not initialize rsa";
@@ -20,6 +20,7 @@ Client::Client(quintptr port, QObject *parent) : QObject(parent), serverAddress(
     connect(&serverConnection, SIGNAL(onChannelReplyReceived(ClientInfo, bool, int)), this, SLOT(receiveCreateChannelReply(ClientInfo, bool, int)));
     //connect( &serverConnection, SIGNAL(onRequestReceived(QString, ClientInfo)), this, SLOT(receiveCreateChannelRequest(QString,ClientInfo)));
 
+    serverConnection.connectToServer(serverAddress, port);
     serverConnection.sendSymKey();
 
 }
@@ -33,7 +34,6 @@ const QList<QString> *Client::getActiveClients()
 
 void Client::sendCreateChannelRequest(QString name)
 {
-    qDebug() << "sending create channel request to the server\n";
     serverConnection.sendCreateChannelRequest(name);
 }
 
@@ -82,23 +82,6 @@ void Client::sendMessage(QString dest, QString text)
 void Client::registerToServer(QString name)
 {
     serverConnection.sendRegistrationRequest(name);
-
-    /*
-    serverConnection = new QSslSocket(this);
-
-    connect(serverConnection, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-                    this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
-            connect(serverConnection, SIGNAL(encrypted()),
-                    this, SLOT(socketEncrypted()));
-            connect(serverConnection, SIGNAL(error(QAbstractSocket::SocketError)),
-                    this, SLOT(socketError(QAbstractSocket::SocketError)));
-            connect(serverConnection, SIGNAL(sslErrors(QList<QSslError>)),
-                    this, SLOT(sslErrors(QList<QSslError>)));
-            connect(serverConnection, SIGNAL(readyRead()),
-                    this, SLOT(processReadyRead()));
-
-    serverConnection->connectToHostEncrypted(serverName, port);
-    //currentReceivingType = REGISTER_REPLY;*/
 }
 
 void Client::incomingConnection(quintptr socketDescriptor)
@@ -116,7 +99,6 @@ void Client::incomingConnection(quintptr socketDescriptor)
 
 void Client::messageReceived(QString text, QString otherClient)
 {
-    qDebug() << "message received slot!";
     emit onMessageReceivedSignal(text, otherClient);
 }
 
@@ -137,12 +119,6 @@ void Client::registrationReplyReceived(QString name, QString result)
 
 void Client::channelRequestAccepted()
 {
-    /*Channel* channel = new Channel(pendingClientName, this);
-    connect(channel, SIGNAL(onMessageReceived(QString, QString)), this, SLOT(messageReceived(QString, QString)));
-    connect(channel, SIGNAL(onChannelConnected(QString)), this, SLOT(channelConnected(QString)));
-    channel->connectToHost(pendingClientName, QHostAddress(pendingClientInfo.clientAddress));
-    activeChannels.push_back(channel);*/
-
     if (pendingConnections.empty()){
         qDebug() << "no pending connections";
         return;
@@ -218,15 +194,6 @@ void Client::sslErrors(QList<QSslError> errors)
 
 }*/
 
-QList<QString> Client::getActiveNamesFromServer()
-{
-
-}
-
-void Client::acceptCreateChannelRequest(QString name)
-{
-
-}
 
 bool Client::initialize()
 {
@@ -258,14 +225,8 @@ void Client::registrationFailed()
 
 }
 
-void Client::verifyServerMessageID()
-{
-
-}
-
 
 void Client::updateActiveClients(){
-    qDebug() << "client update active clients";
     serverConnection.sendGetActiveClientsRequest();
 
 }

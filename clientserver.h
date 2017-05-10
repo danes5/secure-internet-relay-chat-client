@@ -25,8 +25,16 @@ class ClientServer : public QTcpServer
 public:
     ClientServer(quintptr port, QObject* parent = nullptr);
 protected:
+    /**
+     * @brief incomingConnection raised after attempt to connect to client server
+     * @param socketDescriptor
+     */
     void incomingConnection(qintptr socketDescriptor) override;
 signals:
+    /**
+     * @brief incomingConnectionSignal signal raised after new connection
+     * @param socketDescriptor
+     */
     void incomingConnectionSignal(quintptr socketDescriptor);
 };
 

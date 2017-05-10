@@ -1,27 +1,12 @@
 #include "serverconnection.h"
-/*ServerConnection::ServerConnection(QObject* parent) : QObject(parent)
-{
-    socket = new QTcpSocket();
-    connect(socket, SIGNAL(connected()), this, SLOT(connected()));
-    socket->connectToHost(QHostAddress::LocalHost, 5000);
-    qDebug() << "constructor";
-    //socket->write("akafuka", 7);
-}*/
 
-ServerConnection::ServerConnection(QHostAddress serverAddress, ClientInfo &clInfo, rsautils& rsa, QObject *parent = nullptr) :
+ServerConnection::ServerConnection(ClientInfo &clInfo, rsautils& rsa, QObject *parent = nullptr) :
     QObject(parent), clientInfo(clInfo), encrypted(false), rsa(rsa)
 {
     if (!initialize()){
         return;
     }
 
-    qDebug() << "constructor";
-    socket->connectToHost(serverAddress, 5000);
-    if (!socket->waitForConnected()){
-        qDebug() << "could not connect to socket";
-        return;
-    }
-    //sendSymKey();
 
 }
 
@@ -70,7 +55,7 @@ QByteArray ServerConnection::encryptGetActiveClientsRequest()
     return gcm.encryptAndTag(array);
 }
 
-QByteArray ServerConnection::encryptClientInfo()
+/*QByteArray ServerConnection::encryptClientInfo()
 {
     QJsonObject jsonObject;
     jsonObject.insert("type", "cli_info");
@@ -78,7 +63,7 @@ QByteArray ServerConnection::encryptClientInfo()
     QJsonDocument jsonDoc(jsonObject);
     QByteArray array(jsonDoc.toBinaryData());
     return gcm.encryptAndTag(array);
-}
+}*/
 
 QByteArray ServerConnection::encryptSendSymKey()
 {
@@ -120,6 +105,11 @@ void ServerConnection::socketError(QAbstractSocket::SocketError error)
 
 }
 
+void ServerConnection::sslErrors(QList<QSslError> errors)
+{
+
+}
+
 bool ServerConnection::initialize(){
     int res;
     gcm.initialize();
@@ -140,10 +130,37 @@ bool ServerConnection::initialize(){
         return false;
     }
 
-    socket = new QTcpSocket(this);
+    socket = new QSslSocket(this);
     connect(socket, SIGNAL(connected()), this, SLOT(connected()));
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),
+                    this, SLOT(socketError(QAbstractSocket::SocketError)));
+            connect(socket, SIGNAL(sslErrors(QList<QSslError>)),
+    this, SLOT(sslErrors(QList<QSslError>)));
     return true;
+}
+
+void ServerConnection::connectToServer(QString serverAddress, quint16 port)
+{
+    socket->setProtocol(QSsl::SslV3);
+
+    QFile serverCertFile("server.crs");
+    if (! serverCertFile.open(QIODevice::ReadOnly)){
+        qDebug() << "could not open certificate file";
+        return;
+    }
+    QSslCertificate serverCert(&serverCertFile, QSsl::Pem);
+    socket->addCaCertificate(serverCert);
+
+    socket->connectToHostEncrypted(serverAddress, port);
+
+
+    if (!socket->waitForEncrypted()){
+        qDebug() << "could not securely connect to the server!!";
+        return;
+    }
+
 }
 
 /*unsigned char* ServerConnection::generateGcmKey()
@@ -165,12 +182,6 @@ bool ServerConnection::initialize(){
 void ServerConnection::connected()
 {
     qDebug() << "connected";
-    //qDebug() << "sending registration request";
-    //sendRegistrationRequest("name1");
-    //sendGetActiveClientsRequest();
-    //sendCreateChannelRequest("client123");
-    //sendCreateChannelReply(true, "client456");
-
 }
 
 void ServerConnection::readyRead()

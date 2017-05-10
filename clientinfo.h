@@ -11,17 +11,16 @@
 /**
  * @brief The ClientInfo class
  * class contains essential public information about a client such as their ip address, public key etc.
- * not yet fully implemented
  */
 struct ClientInfo
 {
     // ip address of the client
     QString clientAddress;
+    // public rsa key of the client
     QJsonDocument publicKey;
+    // name of the client
     QString name;
-    //QString clientName;
 
-    // class should contain some additional info about client
 
     ClientInfo();
     /**

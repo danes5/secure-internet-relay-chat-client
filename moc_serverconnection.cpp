@@ -9,6 +9,7 @@
 #include "serverconnection.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
+#include <QtCore/QList>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'serverconnection.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
@@ -21,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_ServerConnection_t {
-    QByteArrayData data[19];
-    char stringdata0[261];
+    QByteArrayData data[23];
+    char stringdata0[298];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -42,23 +43,28 @@ QT_MOC_LITERAL(7, 81, 17), // "onRequestReceived"
 QT_MOC_LITERAL(8, 99, 10), // "ClientInfo"
 QT_MOC_LITERAL(9, 110, 6), // "clInfo"
 QT_MOC_LITERAL(10, 117, 22), // "onChannelReplyReceived"
-QT_MOC_LITERAL(11, 140, 18), // "socketStateChanged"
-QT_MOC_LITERAL(12, 159, 28), // "QAbstractSocket::SocketState"
-QT_MOC_LITERAL(13, 188, 5), // "state"
-QT_MOC_LITERAL(14, 194, 11), // "socketError"
-QT_MOC_LITERAL(15, 206, 28), // "QAbstractSocket::SocketError"
-QT_MOC_LITERAL(16, 235, 5), // "error"
-QT_MOC_LITERAL(17, 241, 9), // "connected"
-QT_MOC_LITERAL(18, 251, 9) // "readyRead"
+QT_MOC_LITERAL(11, 140, 2), // "id"
+QT_MOC_LITERAL(12, 143, 18), // "socketStateChanged"
+QT_MOC_LITERAL(13, 162, 28), // "QAbstractSocket::SocketState"
+QT_MOC_LITERAL(14, 191, 5), // "state"
+QT_MOC_LITERAL(15, 197, 11), // "socketError"
+QT_MOC_LITERAL(16, 209, 28), // "QAbstractSocket::SocketError"
+QT_MOC_LITERAL(17, 238, 5), // "error"
+QT_MOC_LITERAL(18, 244, 9), // "sslErrors"
+QT_MOC_LITERAL(19, 254, 16), // "QList<QSslError>"
+QT_MOC_LITERAL(20, 271, 6), // "errors"
+QT_MOC_LITERAL(21, 278, 9), // "connected"
+QT_MOC_LITERAL(22, 288, 9) // "readyRead"
 
     },
     "ServerConnection\0onRegistrationReply\0"
     "\0name\0result\0onUpdatedActiveClients\0"
     "clients\0onRequestReceived\0ClientInfo\0"
-    "clInfo\0onChannelReplyReceived\0"
+    "clInfo\0onChannelReplyReceived\0id\0"
     "socketStateChanged\0QAbstractSocket::SocketState\0"
     "state\0socketError\0QAbstractSocket::SocketError\0"
-    "error\0connected\0readyRead"
+    "error\0sslErrors\0QList<QSslError>\0"
+    "errors\0connected\0readyRead"
 };
 #undef QT_MOC_LITERAL
 
@@ -68,7 +74,7 @@ static const uint qt_meta_data_ServerConnection[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       8,   14, // methods
+       9,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -76,26 +82,28 @@ static const uint qt_meta_data_ServerConnection[] = {
        4,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    2,   54,    2, 0x06 /* Public */,
-       5,    1,   59,    2, 0x06 /* Public */,
-       7,    1,   62,    2, 0x06 /* Public */,
-      10,    3,   65,    2, 0x06 /* Public */,
+       1,    2,   59,    2, 0x06 /* Public */,
+       5,    1,   64,    2, 0x06 /* Public */,
+       7,    1,   67,    2, 0x06 /* Public */,
+      10,    3,   70,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-      11,    1,   72,    2, 0x0a /* Public */,
-      14,    1,   75,    2, 0x0a /* Public */,
-      17,    0,   78,    2, 0x0a /* Public */,
-      18,    0,   79,    2, 0x0a /* Public */,
+      12,    1,   77,    2, 0x0a /* Public */,
+      15,    1,   80,    2, 0x0a /* Public */,
+      18,    1,   83,    2, 0x0a /* Public */,
+      21,    0,   86,    2, 0x0a /* Public */,
+      22,    0,   87,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::QString, QMetaType::QString,    3,    4,
     QMetaType::Void, QMetaType::QJsonArray,    6,
     QMetaType::Void, 0x80000000 | 8,    9,
-    QMetaType::Void, 0x80000000 | 8, QMetaType::Bool, QMetaType::Int,    9,    4,    2,
+    QMetaType::Void, 0x80000000 | 8, QMetaType::Bool, QMetaType::Int,    9,    4,   11,
 
  // slots: parameters
-    QMetaType::Void, 0x80000000 | 12,   13,
-    QMetaType::Void, 0x80000000 | 15,   16,
+    QMetaType::Void, 0x80000000 | 13,   14,
+    QMetaType::Void, 0x80000000 | 16,   17,
+    QMetaType::Void, 0x80000000 | 19,   20,
     QMetaType::Void,
     QMetaType::Void,
 
@@ -114,8 +122,9 @@ void ServerConnection::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         case 3: _t->onChannelReplyReceived((*reinterpret_cast< ClientInfo(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3]))); break;
         case 4: _t->socketStateChanged((*reinterpret_cast< QAbstractSocket::SocketState(*)>(_a[1]))); break;
         case 5: _t->socketError((*reinterpret_cast< QAbstractSocket::SocketError(*)>(_a[1]))); break;
-        case 6: _t->connected(); break;
-        case 7: _t->readyRead(); break;
+        case 6: _t->sslErrors((*reinterpret_cast< QList<QSslError>(*)>(_a[1]))); break;
+        case 7: _t->connected(); break;
+        case 8: _t->readyRead(); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
@@ -133,6 +142,13 @@ void ServerConnection::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
             default: *reinterpret_cast<int*>(_a[0]) = -1; break;
             case 0:
                 *reinterpret_cast<int*>(_a[0]) = qRegisterMetaType< QAbstractSocket::SocketError >(); break;
+            }
+            break;
+        case 6:
+            switch (*reinterpret_cast<int*>(_a[1])) {
+            default: *reinterpret_cast<int*>(_a[0]) = -1; break;
+            case 0:
+                *reinterpret_cast<int*>(_a[0]) = qRegisterMetaType< QList<QSslError> >(); break;
             }
             break;
         }
@@ -195,13 +211,13 @@ int ServerConnection::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 8)
+        if (_id < 9)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 8;
+        _id -= 9;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 8)
+        if (_id < 9)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 8;
+        _id -= 9;
     }
     return _id;
 }
