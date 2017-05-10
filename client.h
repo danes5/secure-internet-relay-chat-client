@@ -30,7 +30,7 @@ signals:
     void onRegistrationFailed(QString message);
     void onMessageReceivedSignal(QString text, QString otherClient);
     void onChannelRequestReceived(QString name);
-    void onChannelConnected(QString name);
+    void onChannelActive(QString name);
 
 
 public slots:
@@ -47,7 +47,7 @@ public slots:
      * @brief receiveCreateChannelRequest receives request from other client and passes it to UI, then send answer back to the server
      * @param name other client
      */
-    void receiveCreateChannelRequest(QString name, ClientInfo clInfo);
+    void receiveCreateChannelRequest(ClientInfo clInfo);
 
 
     /**
@@ -71,7 +71,11 @@ public slots:
     void registrationReplyReceived(QString name, QString result);
     void channelRequestAccepted();
     void channelRequestDeclined();
-    void channelConnected(QString name);
+    void channelActive(QString name);
+    /**
+     * @brief receiveCreateChannelReply receive reply from other client for request for communication
+     */
+    void receiveCreateChannelReply(ClientInfo info, bool result, int id);
 
 
 
@@ -96,10 +100,9 @@ private:
      */
     void declineCreateChannelRequest(QString name);
 
-    /**
-     * @brief receiveCreateChannelReply receive reply from other client for request for communication
-     */
-    void receiveCreateChannelReply(bool accepted);
+    bool initialize();
+
+
 
     /**
      * @brief receiveCreateChannelData receive data needed to establish communication with other user
@@ -118,6 +121,11 @@ private:
     ClientServer clientServer;
     //NetworkTransmission currentTransmission;
 
+    QList<ClientInfo> pendingConnections;
+    QList<ClientInfo> expectingConnections;
+    QList<int> expectingIds;
+    int nextId;
+
 
     //const QString serverName;
     //const qint16 port;
@@ -129,6 +137,7 @@ private:
     bool pendingRequest;
 
     GcmUtils gcm;
+    rsautils rsa;
 
 
 

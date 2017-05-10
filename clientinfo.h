@@ -34,6 +34,8 @@ struct ClientInfo
      * @param json
      */
     void read(const QJsonObject &json);
+
+    bool operator ==(const ClientInfo& other);
 };
 
 #endif // CLIENTINFO_H

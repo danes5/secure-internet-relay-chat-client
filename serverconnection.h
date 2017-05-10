@@ -15,22 +15,26 @@ class ServerConnection : public QObject
     Q_OBJECT
 public:
     //ServerConnection();
-    explicit ServerConnection(QHostAddress serverAddress, const ClientInfo& clInfo, QObject* parent);
+    explicit ServerConnection(QHostAddress serverAddress, ClientInfo& clInfo, rsautils& rsa, QObject* parent);
 
     QByteArray encryptRegistrationRequest(QString clientName);
     QByteArray encryptCreateChannelRequest(QString clientName);
-    QByteArray encryptCreateChannelReply(bool reply, QString clientName);
+    QByteArray encryptCreateChannelReply(bool reply, QString clientName, int id);
     QByteArray encryptGetActiveClientsRequest();
     QByteArray encryptClientInfo();
+    QByteArray encryptSendSymKey();
 
+    const QString serverPubKeyPath = "rsa_pub.txt";
+
+    void sendSymKey();
     void sendRegistrationRequest(QString clientName);
     void sendCreateChannelRequest(QString clientName);
-    void sendCreateChannelReply(bool reply, QString clientName);
+    void sendCreateChannelReply(bool reply, QString clientName, int id);
     void sendGetActiveClientsRequest();
 
 
 
-    void initialize();
+    bool initialize();
     unsigned char * generateGcmKey();
     void setkey(unsigned char * newKey);
 
@@ -45,12 +49,13 @@ public:
 signals:
     void onRegistrationReply(QString name, QString result);
     void onUpdatedActiveClients(QJsonArray clients);
-    void onRequestReceived(QString client, ClientInfo clInfo);
+    void onRequestReceived(ClientInfo clInfo);
+    void onChannelReplyReceived(ClientInfo clInfo, bool result, int);
 
 private:
     QTcpSocket* socket;
     GcmUtils gcm;
-    const ClientInfo& clientInfo;
+    ClientInfo& clientInfo;
     Buffer buffer;
     bool encrypted;
     bool hasServerKey;
@@ -58,8 +63,8 @@ private:
     ServerInfo serverInfo;
 
     bool generateSymKey;
-    RsaUtils rsa;
-    RsaUtils otherRsa;
+    rsautils& rsa;
+    rsautils otherRsa;
     QString authorizationMessage;
     bool otherSideAuthorized;
 

@@ -14,9 +14,9 @@ class Channel : public QObject
 {
     Q_OBJECT
 public:
-    explicit Channel(ClientInfo otherClient, quintptr descriptor, QObject *parent = nullptr);
+    explicit Channel(QList<ClientInfo> *connections, QList<int> *ids, quintptr descriptor, bool genKey, rsautils& rsa, QObject *parent);
     //explicit Channel(QString otherName, QHostAddress hostAddress, quintptr descriptor, QObject *parent);
-    explicit Channel(ClientInfo otherClient, QObject *parent = nullptr);
+    explicit Channel(ClientInfo otherClient, bool genKey, rsautils& rsa, QObject *parent);
     enum ChannelStates{
         RECEIVING_MESSAGE,
         RECEIVING_FILE,
@@ -30,11 +30,13 @@ public:
     QJsonDocument decrypt(QByteArray array);
     void sendAuthorizationMessage();
     void sendSymetricKey();
+    void sendId(int id);
 
 
 signals:
     void onMessageReceived(QString text, QString otherClient);
     void onChannelConnected(QString name);
+    void onChannelActive(QString name);
 
 public slots:
     void sendMessage(QString message);
@@ -48,23 +50,26 @@ private:
     Buffer buffer;
 
     bool connected;
-    bool encrypted = true;
+    bool encrypted;
     quint64 nextId;
     GcmUtils gcm;
-    QString otherClientName;
+    //QString otherClientName;
     ClientInfo otherClientInfo;
 
     bool generateSymKey;
-    RsaUtils rsa;
-    RsaUtils otherRsa;
+    rsautils &rsa;
+    rsautils otherRsa;
     QString authorizationMessage;
     bool otherSideAuthorized;
+    bool hasInfo;
+    QList<ClientInfo> * connections;
+    QList<int> * ids;
 
 
 
 public:
     void initialize();
-    void connectToHost(QString otherName, const QHostAddress &hostAddress = QHostAddress::LocalHost, quintptr port = 5001);
+    void connectToHost(quintptr port = 5001);
 
     unsigned char * generateGcmKey();
     void setkey(unsigned char * newKey);

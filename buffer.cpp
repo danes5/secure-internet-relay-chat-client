@@ -37,3 +37,9 @@ void Buffer::reset()
     buffer.clear();
 
 }
+
+quint64 Buffer::getLength()
+{
+    return length;
+
+}

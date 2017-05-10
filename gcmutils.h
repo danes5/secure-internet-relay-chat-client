@@ -15,9 +15,9 @@ struct GcmUtils
     QJsonDocument decryptAndAuthorizeFull(QByteArray array);
     QJsonDocument decryptAndAuthorizeBody(QByteArray array, const char* tag);
     void initialize();
-    bool generateGcmKey();
+    int generateGcmKey();
     bool setKey(unsigned char * newKey);
-    unsigned char * getKey();
+    //unsigned char * getKey();
 
     bool gcmInitialized;
     bool hasGcmKey;
@@ -30,6 +30,8 @@ struct GcmUtils
     unsigned char iv[iv_len] = { 14, 31, 60, 126, 81, 12, 36, 102, 57, 9, 42, 51, 111, 4, 3, 25 };
 
     const size_t tag_len = 16;
+
+    QString getKey();
 
 private:
     mbedtls_ctr_drbg_context ctr_drbg;

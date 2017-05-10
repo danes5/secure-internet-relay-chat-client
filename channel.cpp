@@ -2,29 +2,29 @@
 #include "QDataStream"
 #include <iostream>
 
-Channel::Channel(ClientInfo otherClient, quintptr descriptor, bool genKey, QObject *parent) : QObject(parent),
-    otherClientName(otherName), encrypted(false), otherSideAuthorized(false), generateSymKey(genKey)
+Channel::Channel(ClientInfo otherClient, bool genKey, rsautils& rsa, QObject *parent) : QObject(parent),
+    otherClientInfo(otherClient), encrypted(false), otherSideAuthorized(false), generateSymKey(genKey), hasInfo(true), rsa(rsa)
 {
     qDebug() << "initialize server channel";
     initialize();
-    socket->setSocketDescriptor(descriptor);
+
     otherClientInfo = otherClient;
     otherRsa.setPartnerPublicKey(otherClient.publicKey);
 }
 
-Channel::Channel(ClientInfo otherClient, bool genKey, QObject *parent) : QObject(parent), encrypted(false), otherSideAuthorized(false),
-    generateSymKey(genKey)
+Channel::Channel(QList<ClientInfo> *connections, QList<int> *ids, quintptr descriptor, bool genKey, rsautils &rsa, QObject *parent) :
+    QObject(parent), encrypted(false), otherSideAuthorized(false),
+    generateSymKey(genKey), hasInfo(false), connections(connections), ids(ids), rsa(rsa)
 {
+
     initialize();
-    otherClientInfo = otherClient;
-    otherRsa.setPartnerPublicKey(otherClient.publicKey);
-    otherClientName = otherName;
+    socket->setSocketDescriptor(descriptor);
 }
 
 
 QString Channel::getOtherClientName()
 {
-    return otherClientName;
+    return otherClientInfo.name;
 }
 
 QByteArray Channel::encryptMessage(QString text)
@@ -40,6 +40,7 @@ QByteArray Channel::encryptMessage(QString text)
 
 QByteArray Channel::encryptSendAuthorizarionMessage(QString message)
 {
+    qDebug() << "sending authorization message";
     QJsonObject jsonObject;
     jsonObject.insert("type", "auth");
     jsonObject.insert("message", authorizationMessage);
@@ -81,16 +82,79 @@ void Channel::sendSymetricKey()
     emit onChannelConnected(otherClientInfo.name);
 }
 
+void Channel::sendId(int id)
+{
+    qDebug() << "sending id: " << id;
+    QJsonObject json;
+    json["type"] = "set_id";
+    json["id"] = id;
+    QJsonDocument doc(json);
+    //QByteArray data = doc.toBinaryData();
+    quint64 len = doc.toBinaryData().length();
+    qDebug() << "send id length : " << len;
+    //data.prepend((char*)&len, sizeof(quint64));
+    //QByteArray completeData;
+    char cData [len + sizeof(quint64)];
+    memcpy(cData, (char*)&len, sizeof(quint64));
+    memcpy(cData + sizeof(quint64) ,doc.toBinaryData().data(), len);
+    QByteArray completeData(cData, len + sizeof(quint64));
+    socket->write(completeData);
+    if (!socket->waitForBytesWritten())
+        qDebug() << "cant write bytes";
+
+
+}
+
+
 
 
 
 void Channel::readyRead()
 {
-    qDebug() << "ready read !!!";
-   buffer.append(socket->readAll());
-   if (buffer.fullMessageRead()){
+    qDebug() << "channel ready read !!!";
+    QByteArray b(socket->readAll()) ;
+   buffer.append(b);
+   if (buffer.fullMessageRead()) {
+       //qDebug() << "message read full";
        QByteArray data = buffer.getData();
         Parser parser;
+        if (!hasInfo) {
+            //qDebug() << "should receive id";
+            parser = Parser(QJsonDocument::fromBinaryData(data));
+            QString type = parser.get("type");
+            if (type != "set_id"){
+                qDebug() << "did not receive id";
+                return;
+            }
+
+
+            int index = -1;
+            int id = parser.getId();
+            qDebug() << "received id: " << id;
+            for (int i = 0; i < ids->length(); ++i ){
+                if (ids->at(i) == id){
+                    index = i;
+                    break;
+                }
+            }
+            if (index == -1){
+                qDebug() << "received request from unknown client";
+                return;
+            }
+            otherClientInfo = connections->at(index);
+            connections->removeAt(index);
+            ids->removeAt(index);
+            qDebug() << "channel connected and recognized client: " << otherClientInfo.name;
+            hasInfo = true;
+            otherRsa.setPartnerPublicKey(otherClientInfo.publicKey);
+            auto x = otherClientInfo.publicKey;
+            sendAuthorizationMessage();
+            //sendSymetricKey();
+            //encrypted = true;
+            //connected = true;
+            //emit onChannelActive(otherClientInfo.name);
+
+        }
        if (encrypted) {
            parser = Parser(gcm.decryptAndAuthorizeFull(data));
            if (! parser.verifyId(nextId)){
@@ -100,16 +164,16 @@ void Channel::readyRead()
            QString type = parser.get("type");
            if (type == "send_message"){
                QString text = parser.get("data");
-               text.prepend(otherClientName + "> ");
+               text.prepend(getOtherClientName() + "> ");
                text.append("\r\n");
                qDebug() << "received text: " << text;
-               emit onMessageReceived(text, otherClientName);
+               emit onMessageReceived(text, getOtherClientName());
            }
 
        } else{
-           parser = Parser(rsa.decryptMessage(data));
+           parser = Parser(QJsonDocument::fromBinaryData( rsa.decryptMessage(data)));
            QString type = parser.get("type");
-           if (type == "auth"){
+           if (type == "auth") {
                if (otherSideAuthorized){
                    qDebug() << "received authorization message after authorization !!!";
                    return;
@@ -119,10 +183,22 @@ void Channel::readyRead()
                    qDebug() << "authorization message differs from message received";
                    return;
                }
+               qDebug() << "authorized!!!!!!!!!!!!!!!!!!";
                otherSideAuthorized = true;
-               if (generateSymKey){
-                   sendSymetricKey();
+               //if (generateSymKey){
+                 //  sendSymetricKey();
+               //}
+
+               if (!generateSymKey){
+                   sendAuthorizationMessage();
                }
+               else {
+                   sendSymetricKey();
+                   encrypted = true;
+                   connected = true;
+                   emit onChannelActive(otherClientInfo.name);
+               }
+               return;
            }
            if (! otherSideAuthorized){
                qDebug() << "received message while not in authorized state !!" ;
@@ -134,7 +210,7 @@ void Channel::readyRead()
                    return;
                }
                QString key = parser.get("key");
-               bool res = gcm.setKey(key.toStdString().c_str());
+               bool res = gcm.setKey((unsigned char *)key.toStdString().c_str());
                if (!res){
                    qDebug() << "could not set symetric key";
                }
@@ -144,8 +220,10 @@ void Channel::readyRead()
                qDebug() << "symetric key was set";
            }
        }
+       buffer.reset();
    }
-   buffer.reset();
+   qDebug() << "incomplete message, rest will be send in next packet, length: " << buffer.getLength();
+
 }
 
 void Channel::connectToHost(quintptr port)
@@ -155,7 +233,7 @@ void Channel::connectToHost(quintptr port)
         qDebug() << "could not connect to socket";
         return;
     }
-    sendAuthorizationMessage();
+    //sendAuthorizationMessage();
     //emit onChannelConnected(otherName);
     qDebug() << "channel connect to host: " << socket->isValid();
 }
@@ -182,6 +260,10 @@ void Channel::initialize(){
 
     if (generateSymKey){
         gcm.generateGcmKey();
+    }
+    int ret = otherRsa.initialize();
+    if (ret != 0){
+        qDebug() << "could not initialize other rsa:  " << ret;
     }
     socket = new QTcpSocket();
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));

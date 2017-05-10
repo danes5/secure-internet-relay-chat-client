@@ -12,6 +12,7 @@ public:
     bool fullMessageRead();
     QByteArray getData();
     void reset();
+    quint64 getLength();
 
 private:
     QByteArray buffer;

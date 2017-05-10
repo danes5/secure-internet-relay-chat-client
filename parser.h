@@ -16,6 +16,8 @@ public:
     QString get(const QString& key);
     QJsonArray getRegisteredClients();
     ClientInfo getClientInfo();
+    QJsonObject getJson();
+    int getId();
 private:
     QJsonObject json;
 

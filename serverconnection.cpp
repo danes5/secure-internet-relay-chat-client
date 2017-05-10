@@ -8,20 +8,21 @@
     //socket->write("akafuka", 7);
 }*/
 
-ServerConnection::ServerConnection(QHostAddress serverAddress, const ClientInfo &clInfo, bool genSymKey, QObject *parent = nullptr) :
-    QObject(parent), clientInfo(clInfo), encrypted(false)
+ServerConnection::ServerConnection(QHostAddress serverAddress, ClientInfo &clInfo, rsautils& rsa, QObject *parent = nullptr) :
+    QObject(parent), clientInfo(clInfo), encrypted(false), rsa(rsa)
 {
-    initialize();
+    if (!initialize()){
+        return;
+    }
 
     qDebug() << "constructor";
-    gcm.generateGcmKey();
     socket->connectToHost(serverAddress, 5000);
     if (!socket->waitForConnected()){
         qDebug() << "could not connect to socket";
         return;
     }
-    sendSymKey();
-    encrypted = true;
+    //sendSymKey();
+
 }
 
 QByteArray ServerConnection::encryptRegistrationRequest(QString clientName)
@@ -29,8 +30,9 @@ QByteArray ServerConnection::encryptRegistrationRequest(QString clientName)
     QJsonObject jsonObject;
     jsonObject.insert("type", "reg_req");
     QJsonObject clInfoObject;
+    clientInfo.name = clientName;
     clientInfo.write(clInfoObject);
-    jsonObject.insert("client", clInfoObject);
+    jsonObject.insert("info", clInfoObject);
     QJsonDocument jsonDoc(jsonObject);
     QByteArray array(jsonDoc.toBinaryData());
     return gcm.encryptAndTag(array);
@@ -42,23 +44,18 @@ QByteArray ServerConnection::encryptCreateChannelRequest(QString clientName)
     QJsonObject jsonObject;
     jsonObject.insert("type", "req_cre");
     jsonObject.insert("client", clientName);
-    QJsonObject clientInf;
-    clientInfo.write(clientInf);
-    jsonObject.insert("info", clientInf);
     QJsonDocument jsonDoc(jsonObject);
     QByteArray array(jsonDoc.toBinaryData());
     return gcm.encryptAndTag(array);
 }
 
-QByteArray ServerConnection::encryptCreateChannelReply(bool reply, QString clientName)
+QByteArray ServerConnection::encryptCreateChannelReply(bool reply, QString clientName, int id)
 {
     QJsonObject jsonObject;
     jsonObject.insert("type", "req_rep");
     jsonObject.insert("client", clientName);
     jsonObject.insert("result", reply ? "acc" : "rej");
-    QJsonObject clientInf;
-    clientInfo.write(clientInf);
-    jsonObject.insert("info", clientInf);
+    jsonObject.insert("id", id);
     QJsonDocument jsonDoc(jsonObject);
     QByteArray array(jsonDoc.toBinaryData());
     return gcm.encryptAndTag(array);
@@ -99,6 +96,7 @@ void ServerConnection::sendSymKey()
     socket->write(encryptSendSymKey());
     if (!socket->waitForBytesWritten())
         qDebug() << "cant write bytes";
+    encrypted = true;
 
 }
 
@@ -112,12 +110,30 @@ void ServerConnection::socketError(QAbstractSocket::SocketError error)
 
 }
 
-void ServerConnection::initialize(){
+bool ServerConnection::initialize(){
+    int res;
     gcm.initialize();
+
+    if ((res = gcm.generateGcmKey()) != 0){
+        qDebug() << "could not generate key: " << res;
+        return false;
+    }
+
+    qDebug() << "key is: " << gcm.getKey();
+
+    if ((res = otherRsa.initialize()) != 0){
+        qDebug() << "could not initialize other rsa: " << res;
+        return false;
+    }
+    if ((res = otherRsa.setPartnerPublicKeyFromFile(serverPubKeyPath)) != 0){
+        qDebug() << "could not load server public key form file: " << res;
+        return false;
+    }
 
     socket = new QTcpSocket();
     connect(socket, SIGNAL(connected()), this, SLOT(connected()));
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+    return true;
 }
 
 /*unsigned char* ServerConnection::generateGcmKey()
@@ -170,14 +186,19 @@ void ServerConnection::readyRead()
                 emit onUpdatedActiveClients(clients);
            }else
            if (type == "req_cre"){
-               QString client = parser.get("client");
-               qDebug() << "received request for communication from: client: " << client;
                ClientInfo clInfo = parser.getClientInfo();
-               emit onRequestReceived(client, clInfo);
+               qDebug() << "received request for communication from: client: " << clInfo.name;
+
+               emit onRequestReceived(clInfo);
            }else
            if (type == "req_rep"){
-               QString client = parser.get("client");
-               qDebug() << "received reply for communication from: client: " << client;
+               //QString client = parser.get("client");
+               QString res = parser.get("result");
+               ClientInfo clInfo = parser.getClientInfo();
+               int id = parser.getJson()["id"].toInt();
+               qDebug() << "received reply for communication from: client: " << clInfo.name << "  with id: " << id;
+               bool acc = res == "acc" ? true :false;
+               emit onChannelReplyReceived(clInfo, acc, id);
            }else
            if (type == "reg_rep"){
                QString result = parser.get("result");
@@ -212,9 +233,9 @@ void ServerConnection::sendCreateChannelRequest(QString clientName)
         qDebug() << "cant write bytes";
 }
 
-void ServerConnection::sendCreateChannelReply(bool reply, QString clientName)
+void ServerConnection::sendCreateChannelReply(bool reply, QString clientName, int id)
 {
-    socket->write(encryptCreateChannelReply(reply, clientName));
+    socket->write(encryptCreateChannelReply(reply, clientName, id));
     if (!socket->waitForBytesWritten())
         qDebug() << "cant write bytes";
 }

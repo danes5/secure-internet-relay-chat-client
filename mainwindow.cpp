@@ -65,7 +65,7 @@ MainWindow::MainWindow(Client *cl, QWidget *parent) :
     connect(client, SIGNAL(onChannelRequestReceived(QString)), this, SLOT(requestReceived(QString)) );
     connect(this, SIGNAL(onChannelRequestAccepted()), client, SLOT(channelRequestAccepted()));
     connect(this, SIGNAL(onChannelRequestDeclined()), client, SLOT(channelRequestDeclined()));
-    connect(client, SIGNAL(onChannelConnected(QString)), this, SLOT(channelCreated(QString)));
+    connect(client, SIGNAL(onChannelActive(QString)), this, SLOT(channelCreated(QString)));
 
 
 }
