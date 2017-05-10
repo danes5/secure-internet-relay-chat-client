@@ -45,9 +45,6 @@ public:
      */
     QByteArray encryptGetActiveClientsRequest();
 
-
-    //QByteArray encryptClientInfo();
-
     /**
      * @brief encryptSendSymKey encrypt request to set symetric key using asymetric key
      * @return encrypted message
@@ -110,10 +107,8 @@ public:
 
     public slots:
     void socketStateChanged(QAbstractSocket::SocketState state);
-    //void socketEncrypted();
     void socketError(QAbstractSocket::SocketError error);
     void sslErrors(QList<QSslError> errors);
-    //void sslErrors(QList<QSslError> errors);
     /**
      * @brief connected slot called after connection to server has been established
      */

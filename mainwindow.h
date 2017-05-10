@@ -42,6 +42,8 @@ public slots:
     void channelRequestDeclined();
     void channelCreated(QString name);
     void quitPressed();
+    void channelDeleted(QString name);
+    void leaveChannelPressed();
 
 
 signals:
@@ -61,15 +63,11 @@ private:
     QMap<QString, QString> texts;
     QString activeCommunication;
     QString selectedClient;
-    //ClientsListModel clientsListModel;
-    //ActiveCommunicationsModel communicationsListModel;
     QTextBrowser *textDisplayer;
     QTextEdit *textEdit;
     QPushButton *sendMessageButton;
     QPushButton *sendFileButton;
     QPushButton *startCommunicationButton;
-    //QListView *activeClientsView;
-    //QListView *activeCommunicationsView;
     QLabel *enterNameLabel;
     QLineEdit *enterNameTextEdit;
     QFrame *enterNameFrame;
@@ -82,6 +80,7 @@ private:
     QPushButton* acceptRequestButton;
     QPushButton* declineRequestButton;
     QLabel* requestLabel;
+    QPushButton* leaveChannelButton;
 
 
 

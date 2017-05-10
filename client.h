@@ -63,6 +63,8 @@ signals:
      */
     void quit();
 
+    void channelDeleted(QString client);
+
 
 public slots:
 
@@ -152,6 +154,12 @@ public slots:
      */
     void quitPressed();
 
+    /**
+     * @brief leaveChannel slot called from ui after leave channel was pressed
+     * @param client channel to leave
+     */
+    void leaveChannel(QString client);
+
 
 private:
 
@@ -160,12 +168,14 @@ private:
      * @return success of initialization
      */
     bool initialize();
+    Channel* findChannel(QString name);
 
     void registrationSuccessful();
     void registrationFailed();
 
     const QString serverAddress;
-    const quint16 port;
+    const quint16 serverPort;
+    const quint16 clientPort;
     QList<QString> activeClients;
     QList<Channel*> activeChannels;
     ClientInfo clientInfo;

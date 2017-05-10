@@ -44,6 +44,12 @@ public:
     QByteArray encryptSendSymKey(QString key);
 
     /**
+     * @brief encryptSendLeave prepare leave channel message
+     * @return encrypted message
+     */
+    QByteArray encryptSendLeave();
+
+    /**
      * @brief decrypt decrypt message using symetric key
      * @param array encrypted data
      * @return decrypted data
@@ -65,6 +71,8 @@ public:
      * @param id
      */
     void sendId(int id);
+
+    void sendLeave();
 
     /**
      * @brief initialize initializes gcm and rsa modules
@@ -102,6 +110,8 @@ signals:
      * @param name name of this channel
      */
     void onChannelActive(QString name);
+
+    void channelRemove(QString name);
 
 public slots:
     /**

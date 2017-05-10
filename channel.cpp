@@ -62,6 +62,19 @@ QByteArray Channel::encryptSendSymKey(QString key)
 
 }
 
+QByteArray Channel::encryptSendLeave()
+{
+    QJsonObject jsonObject;
+    jsonObject.insert("type", "leave");
+    QJsonDocument jsonDoc(jsonObject);
+
+    QByteArray array(jsonDoc.toBinaryData());
+    QByteArray b =  gcm.encryptAndTag(array);
+    qDebug() << "leave length: " << b.length();
+    return b;
+
+}
+
 QJsonDocument Channel::decrypt(QByteArray array)
 {
     return gcm.decryptAndAuthorizeFull(array);
@@ -89,11 +102,7 @@ void Channel::sendId(int id)
     json["type"] = "set_id";
     json["id"] = id;
     QJsonDocument doc(json);
-    //QByteArray data = doc.toBinaryData();
     quint64 len = doc.toBinaryData().length();
-    qDebug() << "send id length : " << len;
-    //data.prepend((char*)&len, sizeof(quint64));
-    //QByteArray completeData;
     char cData [len + sizeof(quint64)];
     memcpy(cData, (char*)&len, sizeof(quint64));
     memcpy(cData + sizeof(quint64) ,doc.toBinaryData().data(), len);
@@ -103,6 +112,14 @@ void Channel::sendId(int id)
         qDebug() << "cant write bytes";
 
 
+}
+
+void Channel::sendLeave()
+{
+    socket->write(encryptSendLeave());
+    if (!socket->waitForBytesWritten())
+        qDebug() << "cant write bytes";
+    deleteLater();
 }
 
 
@@ -150,10 +167,6 @@ void Channel::readyRead()
             otherRsa.setPartnerPublicKey(otherClientInfo.publicKey);
             auto x = otherClientInfo.publicKey;
             sendAuthorizationMessage();
-            //sendSymetricKey();
-            //encrypted = true;
-            //connected = true;
-            //emit onChannelActive(otherClientInfo.name);
             return;
 
         }
@@ -170,7 +183,11 @@ void Channel::readyRead()
                text.append("\r\n");
                qDebug() << "received text: " << text;
                emit onMessageReceived(text, getOtherClientName());
-           }
+           } else
+               if (type == "leave"){
+                   emit channelRemove(otherClientInfo.name);
+                   deleteLater();
+               }
 
        } else{
            parser = Parser(QJsonDocument::fromBinaryData( rsa.decryptMessage(data)));
@@ -187,9 +204,6 @@ void Channel::readyRead()
                }
                qDebug() << "authorized!!!!!!!!!!!!!!!!!!";
                otherSideAuthorized = true;
-               //if (generateSymKey){
-                 //  sendSymetricKey();
-               //}
 
                if (!generateSymKey){
                    sendAuthorizationMessage();
@@ -226,7 +240,6 @@ void Channel::readyRead()
            }
        }
    }
-   qDebug() << "incomplete message, rest will be send in next packet, length: " << buffer.getLength();
 
 }
 
@@ -237,8 +250,6 @@ void Channel::connectToHost(quintptr port)
         qDebug() << "could not connect to socket";
         return;
     }
-    //sendAuthorizationMessage();
-    //emit onChannelConnected(otherName);
     qDebug() << "channel connect to host: " << socket->isValid();
 }
 
@@ -274,10 +285,6 @@ void Channel::initialize(){
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 }
 
-/*unsigned char* Channel::generateGcmKey()
-{
-    return gcm.generateGcmKey();
-}*/
 
 void Channel::setkey(unsigned char * newKey)
 {

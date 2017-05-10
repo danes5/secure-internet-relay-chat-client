@@ -2,8 +2,8 @@
 #include <QNetworkInterface>
 #include <QApplication>
 
-Client::Client(QObject *parent) : QObject(parent), serverAddress(QString("127.0.0.1")), port(5000),
-    clientServer(port, this), serverConnection(clientInfo, rsa, this), nextId(2)
+Client::Client(QObject *parent) : QObject(parent), serverAddress(QString("127.0.0.1")), serverPort(5000), clientPort(5001),
+    clientServer(clientPort, this), serverConnection(clientInfo, rsa, this), nextId(2)
 {
     if (!initialize()){
         qDebug() << "could not initialize rsa";
@@ -20,7 +20,7 @@ Client::Client(QObject *parent) : QObject(parent), serverAddress(QString("127.0.
     connect(&serverConnection, SIGNAL(onChannelReplyReceived(ClientInfo, bool, int)), this, SLOT(receiveCreateChannelReply(ClientInfo, bool, int)));
     //connect( &serverConnection, SIGNAL(onRequestReceived(QString, ClientInfo)), this, SLOT(receiveCreateChannelRequest(QString,ClientInfo)));
 
-    serverConnection.connectToServer(serverAddress, port);
+    serverConnection.connectToServer(serverAddress, serverPort);
     serverConnection.sendSymKey();
 
 }
@@ -92,6 +92,7 @@ void Client::incomingConnection(quintptr socketDescriptor)
     Channel* channel = new Channel(&expectingConnections, &expectingIds, socketDescriptor, true, rsa, this);
     connect(channel, SIGNAL(onMessageReceived(QString, QString)), this, SLOT(messageReceived(QString, QString)));
     connect(channel, SIGNAL(onChannelActive(QString)), this, SLOT(channelActive(QString)));
+    connect(channel, SIGNAL(channelRemove(QString)), this, SLOT(leaveChannel(QString)));
 
     activeChannels.push_back(channel);
     //emit onChannelActive(pendingClientName);
@@ -158,7 +159,8 @@ void Client::receiveCreateChannelReply(ClientInfo info, bool result, int id)
     Channel* channel = new Channel(info, false, rsa,  this);
     connect(channel, SIGNAL(onMessageReceived(QString, QString)), this, SLOT(messageReceived(QString, QString)));
     connect(channel, SIGNAL(onChannelActive(QString)), this, SLOT(channelActive(QString)));
-    channel->connectToHost(5001);
+    connect(channel, SIGNAL(channelRemove(QString)), this, SLOT(leaveChannel(QString)));
+    channel->connectToHost(clientPort);
     channel->sendId(id);
     //channel->sendAuthorizationMessage();
 
@@ -167,33 +169,22 @@ void Client::receiveCreateChannelReply(ClientInfo info, bool result, int id)
 
 void Client::quitPressed()
 {
+    if (! isRegistered)
+        return;
     serverConnection.sendQuit();
     emit quit();
 }
 
-/*void Client::socketStateChanged(QAbstractSocket::SocketState state)
+void Client::leaveChannel(QString client)
 {
-
+    qDebug() << "leave channel";
+    Channel* channel = findChannel(client);
+    if (channel == nullptr)
+        return;
+    channel->sendLeave();
+    emit channelDeleted(channel->getOtherClientName());
+    activeChannels.removeAll(channel);
 }
-
-void Client::socketEncrypted()
-{
-    // now we actually perform sending registration request
-}
-
-void Client::socketError(QAbstractSocket::SocketError error)
-{
-    qDebug() << "socket error: " << error;
-}
-
-void Client::sslErrors(QList<QSslError> errors)
-{
-    foreach (QSslError error, errors) {
-        qDebug() << error.errorString();
-    }
-
-}*/
-
 
 bool Client::initialize()
 {
@@ -212,6 +203,16 @@ bool Client::initialize()
     //QJsonObject obj(clientInfo.publicKey.object());
     //qDebug() << obj;
     return true;
+}
+
+Channel *Client::findChannel(QString name)
+{
+    foreach (Channel* channel, activeChannels) {
+        if (channel->getOtherClientName() == name){
+            return channel;
+        }
+    }
+
 }
 
 void Client::registrationSuccessful()

@@ -55,16 +55,6 @@ QByteArray ServerConnection::encryptGetActiveClientsRequest()
     return gcm.encryptAndTag(array);
 }
 
-/*QByteArray ServerConnection::encryptClientInfo()
-{
-    QJsonObject jsonObject;
-    jsonObject.insert("type", "cli_info");
-    clientInfo.write(jsonObject);
-    QJsonDocument jsonDoc(jsonObject);
-    QByteArray array(jsonDoc.toBinaryData());
-    return gcm.encryptAndTag(array);
-}*/
-
 QByteArray ServerConnection::encryptSendSymKey()
 {
     QJsonObject jsonObject;
@@ -156,6 +146,9 @@ void ServerConnection::connectToServer(QString serverAddress, quint16 port)
     }
     QSslCertificate serverCert(&serverCertFile, QSsl::Pem);
     socket->addCaCertificate(serverCert);
+
+    // line added because ssl throws error that certificate is not verified on your system,
+    // added here so you can run it easily
     socket->setPeerVerifyMode(QSslSocket::VerifyNone);
 
     socket->connectToHostEncrypted(serverAddress, port);
@@ -168,25 +161,9 @@ void ServerConnection::connectToServer(QString serverAddress, quint16 port)
 
 }
 
-/*unsigned char* ServerConnection::generateGcmKey()
-{
-    return gcm.generateGcmKey();
-}*/
-
-/*void ServerConnection::setkey(unsigned char * newKey)
-{
-    gcm.setKey(newKey);
-
-}*/
-
-/*ServerConnection::~ServerConnection()
-{
-
-}*/
-
 void ServerConnection::connected()
 {
-    //qDebug() << "connected";
+    qDebug() << "connected";
 }
 
 void ServerConnection::readyRead()

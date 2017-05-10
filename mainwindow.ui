@@ -140,7 +140,7 @@ p, li { white-space: pre-wrap; }
      <string>Quit</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="leaveChannelButton">
     <property name="geometry">
      <rect>
       <x>360</x>

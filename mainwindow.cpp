@@ -35,16 +35,14 @@ MainWindow::MainWindow(Client *cl, QWidget *parent) :
     declineRequestButton->setVisible(false);
     requestLabel = ui->requestLabel;
     requestLabel->setVisible(false);
+    leaveChannelButton = ui->leaveChannelButton;
 
 
 
     // connects signal from client that list of active users has changed with slot in this class which updates it
     connect(client, SIGNAL(onActiveClientsUpdated(QJsonArray)), this, SLOT(updateActiveClients(QJsonArray)));
-    //connect(activeCommunicationsView,SIGNAL(clicked(const QModelIndex &)), this, SLOT(onCommunicationClicked(const QModelIndex &)));
     connect(communicationsList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onCommunicationClicked(QListWidgetItem*)));
     connect(clientsList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(clientClicked(QListWidgetItem*)));
-
-    //connect(activeClientsView,SIGNAL(clicked(const QModelIndex &)), this, SLOT(clientClicked(const QModelIndex &)));
     connect(sendMessageButton, SIGNAL(pressed()), this, SLOT(sendMessageButtonPressed()));
     connect(this, SIGNAL(forwardSendMessage(QString, QString)), client, SLOT(sendMessage(QString,QString)));
     connect(this, SIGNAL(forwardStartCommunication(QString)), client, SLOT(sendCreateChannelRequest(QString)));
@@ -60,9 +58,6 @@ MainWindow::MainWindow(Client *cl, QWidget *parent) :
     connect(client, SIGNAL(onRegistrationFailed(QString)), this, SLOT(showLoginError(QString)));
     connect(client, SIGNAL(onMessageReceivedSignal(QString,QString)), this, SLOT(messageReceived(QString, QString)));
     connect(this, SIGNAL(onRefreshButtonPressed()), client, SLOT(updateActiveClients()));
-    texts.insert("nobody", "This is a message form someone");
-    texts.insert("123", "This is message from 123");
-    texts.insert("roman", "message from roman: this works!");
     connect(refreshButton, SIGNAL(pressed()), this, SLOT(refreshButtonPressed()));
     connect(acceptRequestButton, SIGNAL(pressed()), this, SLOT(channelRequestAccepted()));
     connect(declineRequestButton, SIGNAL(pressed()), this, SLOT(channelRequestDeclined()));
@@ -70,6 +65,8 @@ MainWindow::MainWindow(Client *cl, QWidget *parent) :
     connect(this, SIGNAL(onChannelRequestAccepted()), client, SLOT(channelRequestAccepted()));
     connect(this, SIGNAL(onChannelRequestDeclined()), client, SLOT(channelRequestDeclined()));
     connect(client, SIGNAL(onChannelActive(QString)), this, SLOT(channelCreated(QString)));
+    connect(client, SIGNAL(channelDeleted(QString)), this, SLOT(channelDeleted(QString)));
+    connect(leaveChannelButton, SIGNAL(pressed()), this, SLOT(leaveChannelPressed()));
 
 
 }
@@ -92,13 +89,6 @@ void MainWindow::onCommunicationClicked(QListWidgetItem* item)
     qDebug() << "on communication clicked";
     activeCommunication = item->text();
     textDisplayer->setText(*texts.find(item->text()));
-
-
-    /*if (index.isValid()) {
-        activeCommunication = index.data().toString();
-        ui->activeCommunicationsView->setCurrentIndex(index);
-        ui->textDisplayer->setText(*texts.find(activeCommunication));
-    }*/
 }
 
 void MainWindow::addCommunication(QString name)
@@ -199,6 +189,22 @@ void MainWindow::channelCreated(QString name)
 void MainWindow::quitPressed()
 {
     emit onQuitPressed();
+
+}
+
+void MainWindow::channelDeleted(QString name)
+{
+    qDebug() << "channel deleted main window";
+    texts.remove(name);
+    if (activeCommunication == name)
+        textDisplayer->setText("");
+    qDeleteAll(communicationsList->findItems(name, Qt::MatchExactly));
+
+}
+
+void MainWindow::leaveChannelPressed()
+{
+    emit client->leaveChannel(activeCommunication);
 
 }
 
