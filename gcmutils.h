@@ -5,8 +5,8 @@
 #include "securityfunctions.h"
 #include <QJsonDocument>
 #include <QJsonObject>
-#include "mbedtls/entropy.h"
-#include "mbedtls/ctr_drbg.h"
+#include "libs/entropy.h"
+#include "libs/ctr_drbg.h"
 
 struct GcmUtils
 {
