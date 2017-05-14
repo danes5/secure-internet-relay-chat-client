@@ -37,6 +37,8 @@ SOURCES += main.cpp\
     libs/gcm.c \
     libs/sha512.c \
     libs/cipher.c \
+    libs/padlock.c \
+    libs/platform.c \
     libs/ccm.c \
     libs/cmac.c \
     libs/cipher_wrap.c \

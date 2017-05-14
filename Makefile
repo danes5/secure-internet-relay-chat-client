@@ -60,6 +60,8 @@ SOURCES       = main.cpp \
 		libs/gcm.c \
 		libs/sha512.c \
 		libs/cipher.c \
+		libs/padlock.c \
+		libs/platform.c \
 		libs/ccm.c \
 		libs/cmac.c \
 		libs/cipher_wrap.c \
@@ -107,6 +109,8 @@ OBJECTS       = main.o \
 		gcm.o \
 		sha512.o \
 		cipher.o \
+		padlock.o \
+		platform.o \
 		ccm.o \
 		cmac.o \
 		cipher_wrap.o \
@@ -372,6 +376,8 @@ DIST          = ../../Qt/5.8/gcc_64/mkspecs/features/spec_pre.prf \
 		libs/gcm.c \
 		libs/sha512.c \
 		libs/cipher.c \
+		libs/padlock.c \
+		libs/platform.c \
 		libs/ccm.c \
 		libs/cmac.c \
 		libs/cipher_wrap.c \
@@ -781,7 +787,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../../Qt/5.8/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents mainwindow.h client.h channel.h clientinfo.h securityfunctions.h libs/cipher_internal.h libs/aes.h libs/aesni.h libs/gcm.h libs/sha512.h libs/check_config.h libs/cipher.h libs/config.h libs/padlock.h libs/platform.h libs/platform_time.h libs/target_config.h catch.hpp libs/ccm.h libs/cmac.h libs/arc4.h libs/camellia.h libs/blowfish.h libs/des.h libs/threading.h libs/entropy_poll.h libs/ctr_drbg.h libs/timing.h libs/havege.h libs/entropy.h libs/bignum.h libs/ripemd160.h libs/sha1.h libs/sha256.h libs/md2.h libs/md4.h libs/md5.h libs/md_internal.h libs/asn1.h libs/md.h libs/oid.h libs/rsa.h gcmutils.h rsautils.h serverconnection.h clientserver.h buffer.h parser.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp mainwindow.cpp client.cpp channel.cpp clientinfo.cpp testing.cpp securityfunctions.cpp libs/aes.c libs/aesni.c libs/gcm.c libs/sha512.c libs/cipher.c libs/ccm.c libs/cmac.c libs/cipher_wrap.c libs/arc4.c libs/camellia.c libs/blowfish.c libs/des.c libs/threading.c libs/entropy_poll.c libs/ctr_drbg.c libs/timing.c libs/havege.c libs/entropy.c libs/bignum.c libs/ripemd160.c libs/sha1.c libs/sha256.c libs/md2.c libs/md4.c libs/md5.c libs/md_wrap.c libs/asn1parse.c libs/md.c libs/oid.c libs/rsa.c gcmutils.cpp rsautils.cpp serverconnection.cpp clientserver.cpp buffer.cpp parser.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp mainwindow.cpp client.cpp channel.cpp clientinfo.cpp testing.cpp securityfunctions.cpp libs/aes.c libs/aesni.c libs/gcm.c libs/sha512.c libs/cipher.c libs/padlock.c libs/platform.c libs/ccm.c libs/cmac.c libs/cipher_wrap.c libs/arc4.c libs/camellia.c libs/blowfish.c libs/des.c libs/threading.c libs/entropy_poll.c libs/ctr_drbg.c libs/timing.c libs/havege.c libs/entropy.c libs/bignum.c libs/ripemd160.c libs/sha1.c libs/sha256.c libs/md2.c libs/md4.c libs/md5.c libs/md_wrap.c libs/asn1parse.c libs/md.c libs/oid.c libs/rsa.c gcmutils.cpp rsautils.cpp serverconnection.cpp clientserver.cpp buffer.cpp parser.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents mainwindow.ui $(DISTDIR)/
 
 
@@ -957,16 +963,16 @@ moc_mainwindow.cpp: ../../Qt/5.8/gcc_64/include/QtWidgets/QMainWindow \
 		libs/sha512.h \
 		libs/gcm.h \
 		gcmutils.h \
-		buffer.h \
-		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
-		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
-		parser.h \
-		rsautils.h \
 		libs/entropy.h \
 		libs/sha256.h \
 		libs/threading.h \
 		libs/havege.h \
 		libs/ctr_drbg.h \
+		buffer.h \
+		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
+		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
+		parser.h \
+		rsautils.h \
 		libs/rsa.h \
 		libs/bignum.h \
 		libs/md.h \
@@ -1132,16 +1138,16 @@ moc_client.cpp: ../../Qt/5.8/gcc_64/include/QtCore/QObject \
 		libs/sha512.h \
 		libs/gcm.h \
 		gcmutils.h \
-		buffer.h \
-		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
-		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
-		parser.h \
-		rsautils.h \
 		libs/entropy.h \
 		libs/sha256.h \
 		libs/threading.h \
 		libs/havege.h \
 		libs/ctr_drbg.h \
+		buffer.h \
+		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
+		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
+		parser.h \
+		rsautils.h \
 		libs/rsa.h \
 		libs/bignum.h \
 		libs/md.h \
@@ -1251,6 +1257,11 @@ moc_channel.cpp: ../../Qt/5.8/gcc_64/include/QtCore/QObject \
 		libs/sha512.h \
 		libs/gcm.h \
 		gcmutils.h \
+		libs/entropy.h \
+		libs/sha256.h \
+		libs/threading.h \
+		libs/havege.h \
+		libs/ctr_drbg.h \
 		buffer.h \
 		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
 		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
@@ -1274,11 +1285,6 @@ moc_channel.cpp: ../../Qt/5.8/gcc_64/include/QtCore/QObject \
 		../../Qt/5.8/gcc_64/include/QtGui/qvector2d.h \
 		../../Qt/5.8/gcc_64/include/QtGui/qtouchdevice.h \
 		rsautils.h \
-		libs/entropy.h \
-		libs/sha256.h \
-		libs/threading.h \
-		libs/havege.h \
-		libs/ctr_drbg.h \
 		libs/rsa.h \
 		libs/bignum.h \
 		libs/md.h \
@@ -1381,6 +1387,11 @@ moc_serverconnection.cpp: ../../Qt/5.8/gcc_64/include/QtCore/QObject \
 		libs/sha512.h \
 		libs/gcm.h \
 		gcmutils.h \
+		libs/entropy.h \
+		libs/sha256.h \
+		libs/threading.h \
+		libs/havege.h \
+		libs/ctr_drbg.h \
 		parser.h \
 		../../Qt/5.8/gcc_64/include/QtGui/QList \
 		../../Qt/5.8/gcc_64/include/QtGui/qevent.h \
@@ -1404,11 +1415,6 @@ moc_serverconnection.cpp: ../../Qt/5.8/gcc_64/include/QtCore/QObject \
 		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
 		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
 		rsautils.h \
-		libs/entropy.h \
-		libs/sha256.h \
-		libs/threading.h \
-		libs/havege.h \
-		libs/ctr_drbg.h \
 		libs/rsa.h \
 		libs/bignum.h \
 		libs/md.h \
@@ -1661,16 +1667,16 @@ main.o: main.cpp mainwindow.h \
 		libs/sha512.h \
 		libs/gcm.h \
 		gcmutils.h \
-		buffer.h \
-		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
-		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
-		parser.h \
-		rsautils.h \
 		libs/entropy.h \
 		libs/sha256.h \
 		libs/threading.h \
 		libs/havege.h \
 		libs/ctr_drbg.h \
+		buffer.h \
+		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
+		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
+		parser.h \
+		rsautils.h \
 		libs/rsa.h \
 		libs/bignum.h \
 		libs/md.h \
@@ -1868,16 +1874,16 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		libs/sha512.h \
 		libs/gcm.h \
 		gcmutils.h \
-		buffer.h \
-		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
-		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
-		parser.h \
-		rsautils.h \
 		libs/entropy.h \
 		libs/sha256.h \
 		libs/threading.h \
 		libs/havege.h \
 		libs/ctr_drbg.h \
+		buffer.h \
+		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
+		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
+		parser.h \
+		rsautils.h \
 		libs/rsa.h \
 		libs/bignum.h \
 		libs/md.h \
@@ -2067,16 +2073,16 @@ client.o: client.cpp client.h \
 		libs/sha512.h \
 		libs/gcm.h \
 		gcmutils.h \
-		buffer.h \
-		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
-		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
-		parser.h \
-		rsautils.h \
 		libs/entropy.h \
 		libs/sha256.h \
 		libs/threading.h \
 		libs/havege.h \
 		libs/ctr_drbg.h \
+		buffer.h \
+		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
+		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
+		parser.h \
+		rsautils.h \
 		libs/rsa.h \
 		libs/bignum.h \
 		libs/md.h \
@@ -2215,6 +2221,11 @@ channel.o: channel.cpp channel.h \
 		libs/sha512.h \
 		libs/gcm.h \
 		gcmutils.h \
+		libs/entropy.h \
+		libs/sha256.h \
+		libs/threading.h \
+		libs/havege.h \
+		libs/ctr_drbg.h \
 		buffer.h \
 		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
 		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
@@ -2238,11 +2249,6 @@ channel.o: channel.cpp channel.h \
 		../../Qt/5.8/gcc_64/include/QtGui/qvector2d.h \
 		../../Qt/5.8/gcc_64/include/QtGui/qtouchdevice.h \
 		rsautils.h \
-		libs/entropy.h \
-		libs/sha256.h \
-		libs/threading.h \
-		libs/havege.h \
-		libs/ctr_drbg.h \
 		libs/rsa.h \
 		libs/bignum.h \
 		libs/md.h
@@ -2446,15 +2452,15 @@ testing.o: testing.cpp ../../Qt/5.8/gcc_64/include/QtCore/QCoreApplication \
 		../../Qt/5.8/gcc_64/include/QtNetwork/QHostAddress \
 		../../Qt/5.8/gcc_64/include/QtNetwork/qhostaddress.h \
 		gcmutils.h \
-		buffer.h \
-		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
-		parser.h \
-		rsautils.h \
 		libs/entropy.h \
 		libs/sha256.h \
 		libs/threading.h \
 		libs/havege.h \
 		libs/ctr_drbg.h \
+		buffer.h \
+		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
+		parser.h \
+		rsautils.h \
 		libs/rsa.h \
 		libs/bignum.h \
 		libs/md.h \
@@ -2586,6 +2592,20 @@ cipher.o: libs/cipher.c libs/config.h \
 		libs/platform_time.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o cipher.o libs/cipher.c
 
+padlock.o: libs/padlock.c libs/config.h \
+		libs/target_config.h \
+		libs/check_config.h \
+		libs/padlock.h \
+		libs/aes.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -o padlock.o libs/padlock.c
+
+platform.o: libs/platform.c libs/config.h \
+		libs/target_config.h \
+		libs/check_config.h \
+		libs/platform.h \
+		libs/platform_time.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -o platform.o libs/platform.c
+
 ccm.o: libs/ccm.c libs/config.h \
 		libs/target_config.h \
 		libs/check_config.h \
@@ -2599,6 +2619,7 @@ cmac.o: libs/cmac.c libs/config.h \
 		libs/target_config.h \
 		libs/check_config.h \
 		libs/cmac.h \
+		libs/cipher.h \
 		libs/platform.h \
 		libs/platform_time.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o cmac.o libs/cmac.c
@@ -2829,7 +2850,8 @@ rsa.o: libs/rsa.c libs/config.h \
 		libs/cipher.h \
 		libs/x509.h \
 		libs/platform.h \
-		libs/platform_time.h
+		libs/platform_time.h \
+		libs/sha1.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o rsa.o libs/rsa.c
 
 gcmutils.o: gcmutils.cpp gcmutils.h \
@@ -2894,6 +2916,11 @@ gcmutils.o: gcmutils.cpp gcmutils.h \
 		../../Qt/5.8/gcc_64/include/QtCore/qjsonvalue.h \
 		../../Qt/5.8/gcc_64/include/QtCore/QJsonObject \
 		../../Qt/5.8/gcc_64/include/QtCore/qjsonobject.h \
+		libs/entropy.h \
+		libs/sha256.h \
+		libs/threading.h \
+		libs/havege.h \
+		libs/ctr_drbg.h \
 		../../Qt/5.8/gcc_64/include/QtCore/QDebug \
 		../../Qt/5.8/gcc_64/include/QtCore/qdebug.h \
 		../../Qt/5.8/gcc_64/include/QtCore/qhash.h \
@@ -3097,6 +3124,11 @@ serverconnection.o: serverconnection.cpp serverconnection.h \
 		libs/sha512.h \
 		libs/gcm.h \
 		gcmutils.h \
+		libs/entropy.h \
+		libs/sha256.h \
+		libs/threading.h \
+		libs/havege.h \
+		libs/ctr_drbg.h \
 		parser.h \
 		../../Qt/5.8/gcc_64/include/QtGui/QList \
 		../../Qt/5.8/gcc_64/include/QtGui/qevent.h \
@@ -3120,11 +3152,6 @@ serverconnection.o: serverconnection.cpp serverconnection.h \
 		../../Qt/5.8/gcc_64/include/QtCore/QByteArray \
 		../../Qt/5.8/gcc_64/include/QtCore/QDataStream \
 		rsautils.h \
-		libs/entropy.h \
-		libs/sha256.h \
-		libs/threading.h \
-		libs/havege.h \
-		libs/ctr_drbg.h \
 		libs/rsa.h \
 		libs/bignum.h \
 		libs/md.h
