@@ -16,8 +16,6 @@ public:
   explicit Channel(QList<ClientInfo> *connections, QList<int> *ids,
                    quintptr descriptor, bool genKey, rsautils &rsa,
                    QObject *parent);
-  // explicit Channel(QString otherName, QHostAddress hostAddress, quintptr
-  // descriptor, QObject *parent);
   explicit Channel(ClientInfo otherClient, bool genKey, rsautils &rsa,
                    QObject *parent);
   /**
@@ -107,7 +105,6 @@ signals:
    * @param otherClient sender of the message
    */
   void onMessageReceived(QString text, QString otherClient);
-  // void onChannelConnected(QString name);
 
   /**
    * @brief onChannelActive signal raised when channel becomes active
@@ -134,7 +131,6 @@ private:
   Buffer buffer;
   ClientInfo otherClientInfo;
 
-  // bool connected;
   bool encrypted;
   quint64 nextId;
   GcmUtils gcm;

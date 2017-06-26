@@ -81,7 +81,6 @@ void Channel::sendSymetricKey() {
   socket->write(encryptSendSymKey(gcm.getKey()));
   if (!socket->waitForBytesWritten())
     qDebug() << "cant write bytes";
-  // emit onChannelConnected(otherClientInfo.name);
 }
 
 void Channel::sendId(int id) {
@@ -180,7 +179,7 @@ void Channel::readyRead() {
           qDebug() << "authorization message differs from message received";
           return;
         }
-        qDebug() << "authorized!!!!!!!!!!!!!!!!!!";
+        qDebug() << "authorized!";
         otherSideAuthorized = true;
 
         if (!generateSymKey) {
