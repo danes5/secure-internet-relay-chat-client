@@ -146,8 +146,12 @@ void Client::receiveCreateChannelReply(ClientInfo info, bool result, int id) {
 }
 
 void Client::quitPressed() {
-  if (isRegistered)
+  if (isRegistered){
     serverConnection.sendQuit();
+    for (auto ch : activeChannels){
+        ch->sendLeave();
+    }
+  }
   emit quit();
 }
 

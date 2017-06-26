@@ -30,7 +30,6 @@ SOURCES += main.cpp\
     client.cpp \
     channel.cpp \
     clientinfo.cpp \
-    testing.cpp \
     securityfunctions.cpp \
     libs/aes.c \
     libs/aesni.c \
@@ -92,7 +91,6 @@ HEADERS  += mainwindow.h \
     libs/platform.h \
     libs/platform_time.h \
     libs/target_config.h \
-    catch.hpp \
     libs/ccm.h \
     libs/cmac.h \
     libs/arc4.h \
@@ -119,6 +117,7 @@ HEADERS  += mainwindow.h \
     libs/rsa.h \
     gcmutils.h \
     rsautils.h \
+    libs/catch.hpp \
     serverconnection.h \
     clientserver.h \
     buffer.h \

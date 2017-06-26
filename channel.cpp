@@ -64,7 +64,6 @@ QByteArray Channel::encryptSendLeave() {
 
   QByteArray array(jsonDoc.toBinaryData());
   QByteArray b = gcm.encryptAndTag(array);
-  qDebug() << "leave length: " << b.length();
   return b;
 }
 
