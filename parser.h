@@ -1,27 +1,25 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include <QObject>
+#include "clientinfo.h"
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QList>
-#include <QJsonArray>
-#include "clientinfo.h"
-class Parser
-{
+#include <QObject>
+class Parser {
 public:
-    Parser(QJsonDocument doc);
-    Parser();
-    bool verifyId(quint64 id);
-    QString get(const QString& key);
-    QJsonArray getRegisteredClients();
-    ClientInfo getClientInfo();
-    QJsonObject getJson();
-    int getId();
+  Parser(QJsonDocument doc);
+  Parser();
+  bool verifyId(quint64 id);
+  QString get(const QString &key);
+  QJsonArray getRegisteredClients();
+  ClientInfo getClientInfo();
+  QJsonObject getJson();
+  int getId();
+
 private:
-    QJsonObject json;
-
-
+  QJsonObject json;
 };
 
 #endif // PARSER_H

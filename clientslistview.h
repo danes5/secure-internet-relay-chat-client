@@ -1,17 +1,19 @@
 #ifndef CLIENTSLISTVIEW_H
 #define CLIENTSLISTVIEW_H
 
-#include <QObject>
 #include <QAbstractListModel>
+#include <QObject>
 
-class clientsListView : QAbstractListModel
-{
+class clientsListView : QAbstractListModel {
 public:
-    clientsListView();
-    QVariant QAbstractItemModel::data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    int QAbstractItemModel::rowCount(const QModelIndex &parent = QModelIndex()) const;
+  clientsListView();
+  QVariant QAbstractItemModel::data(const QModelIndex &index,
+                                    int role = Qt::DisplayRole) const;
+  int QAbstractItemModel::rowCount(
+      const QModelIndex &parent = QModelIndex()) const;
+
 private:
-    QList<QString> *data;
+  QList<QString> *data;
 };
 
 #endif // CLIENTSLISTVIEW_H

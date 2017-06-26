@@ -91,24 +91,6 @@ p, li { white-space: pre-wrap; }
      <string>Send Message</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="sendFileButton">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>360</y>
-      <width>89</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>8</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Send File</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="startCommunicationsButton">
     <property name="geometry">
      <rect>

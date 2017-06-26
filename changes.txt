@@ -1,0 +1,7 @@
+- removed commented code and unused methods + general refactoring
+- removed send file functions and button
+- set style of project to LLVM style
+- fixed bug where app quit would cause sigsegv
+- fixed bug when client could not quit while waiting to connect
+- removed all compilation warnings to follow cpp standard
+ 
